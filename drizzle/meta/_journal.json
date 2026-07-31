@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1783949434844,
+      "tag": "0000_mute_iron_monger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1783956033870,
+      "tag": "0001_mean_lady_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784560263542,
+      "tag": "0002_new_alex_wilder",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784573127475,
+      "tag": "0003_overconfident_bug",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784893953717,
+      "tag": "0004_new_corsair",
+      "breakpoints": true
+    }
+  ]
+}
