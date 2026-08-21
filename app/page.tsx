@@ -17,7 +17,7 @@ import {
 import { loadOperationSnapshot, sendOperationCommand } from "../lib/client/operations-api";
 import { requestStrategyDraft } from "../lib/client/strategy-copilot-api";
 import { loadControlPlaneSnapshot, sendControlPlaneCommand } from "../lib/client/control-plane-api";
-import { loadRuntimeStatus, sendRuntimeCommand } from "../lib/client/runtime-api";
+import { loadRuntimeStatus } from "../lib/client/runtime-api";
 import { loadShadowSnapshot, runShadowCycle } from "../lib/client/shadow-api";
 import { ROLE_LABELS, type ControlPlaneSnapshot } from "../lib/control-plane";
 import type { RuntimeControlStatus } from "../lib/runtime/status";
@@ -165,7 +165,7 @@ const TRANSACTIONS = [
 ];
 
 const PRIMARY_NAV: { id: Screen; label: string }[] = [
-  { id: "dashboard", label: "포트폴리오" },
+  { id: "dashboard", label: "펀드 운용" },
   { id: "control", label: "리스크·통제" },
   { id: "shadow", label: "섀도 운용" },
   { id: "operations", label: "주문관리" },
@@ -729,9 +729,6 @@ function Verify({ go, notify }: { go: (screen: Screen) => void; notify: (message
 
 function ApiSetup({ go, notify, backTo }: { go: (screen: Screen) => void; notify: (message: string) => void; backTo: Screen }) {
   const [accountLabel, setAccountLabel] = useState("");
-  const [accountFingerprint, setAccountFingerprint] = useState("");
-  const [secretReference, setSecretReference] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [readiness, setReadiness] = useState<ExchangeReadiness | null>(null);
   useEffect(() => {
     if (typeof fetch !== "function") return;
@@ -742,42 +739,23 @@ function ApiSetup({ go, notify, backTo }: { go: (screen: Screen) => void; notify
       .catch(() => undefined);
     return () => controller.abort();
   }, []);
-  const finish = async () => {
+  const finish = () => {
     if (accountLabel.trim().length < 3) { notify("법인 거래소 계정 이름을 3자 이상 입력해주세요"); return; }
-    if (!/^[A-Fa-f0-9]{16,128}$/.test(accountFingerprint.trim())) { notify("KMS에 등록된 계정 지문을 확인해주세요"); return; }
-    if (!/^[A-Za-z0-9][A-Za-z0-9._:/-]{7,239}$/.test(secretReference.trim())) { notify("KMS/Vault 비밀정보 참조 형식을 확인해주세요"); return; }
-    setSubmitting(true);
-    try {
-      await sendRuntimeCommand({
-        action: "register_read_only_exchange",
-        accountLabel: accountLabel.trim(),
-        accountFingerprint: accountFingerprint.trim(),
-        secretReference: secretReference.trim(),
-      });
-      setAccountLabel("");
-      setAccountFingerprint("");
-      setSecretReference("");
-      notify("읽기 전용 연결 요청을 등록했습니다. 독립 리스크·준법 승인이 필요합니다");
-      go(backTo);
-    } catch (error) {
-      notify(error instanceof Error ? error.message : "읽기 전용 연결 요청을 등록하지 못했습니다");
-    } finally {
-      setSubmitting(false);
-    }
+    notify("보안 저장소 연동이 준비되면 관리자에게 읽기 전용 연결 요청이 전달됩니다. 이 화면에는 API 키를 입력하지 않습니다.");
   };
   return <main className="api-screen">
     <section className="api-card">
       <button type="button" className="back-link" onClick={() => go(backTo)}>← 뒤로</button>
-      <h1>법인 거래소 연결 요청</h1><p>비밀 키는 이 화면에 입력하지 않습니다. 외부 KMS/Vault에 등록한 뒤 참조값만 연결합니다.</p>
+      <h1>법인 거래소 읽기 전용 연결</h1><p>거래소 API 키는 이 화면에 입력하지 않습니다. 실제 연결은 서버 보안 저장소가 준비된 뒤, 승인된 관리자 절차로만 진행합니다.</p>
       <label>지원 준비 상태</label>
       <div className="exchange-row">{[["업비트","읽기 전용 대사","U",true],["빗썸","준비 중","B",false],["바이낸스","준비 중","BN",false]].map((item) => <button type="button" className={item[3] ? "selected" : "coming-soon"} aria-pressed={item[3] ? true : undefined} disabled={!item[3]} key={String(item[0])}><i>{item[2]}</i><strong>{item[0]}</strong><small>{item[1]}</small></button>)}</div>
-      <label>외부 보안 저장소 참조</label>
+      <label>연결 요청 정보</label>
       <div className="key-row"><span>1</span><label>법인 계정 이름<input value={accountLabel} onChange={(e) => setAccountLabel(e.target.value)} placeholder="예: BlockTrade 운영계정 01" autoComplete="off" /></label></div>
-      <div className="key-row"><span>2</span><label>계정 지문<input value={accountFingerprint} onChange={(e) => setAccountFingerprint(e.target.value.replace(/[^a-fA-F0-9]/g, "").slice(0, 128))} placeholder="KMS에서 생성한 16자 이상 16진수 지문" autoComplete="off" spellCheck={false} /></label></div>
-      <div className="key-row"><span>3</span><label>KMS/Vault 참조<input value={secretReference} onChange={(e) => setSecretReference(e.target.value)} placeholder="예: vault://blocktrade/upbit/corp-01" autoComplete="off" spellCheck={false} /></label></div>
-      <div className="api-warning"><b>통제</b><span><strong>출금·주문 권한 금지</strong>이 연결은 잔고와 주문 내역을 읽어 대사하는 용도입니다. 원시 키는 브라우저·D1·로그에 저장하지 않으며 독립 승인 전에는 실행되지 않습니다.</span></div>
+      <div className="key-row"><span>2</span><label>실제 키 등록 위치<input value="KMS 연동 후 열리는 별도 보안 등록창" readOnly aria-readonly="true" /></label></div>
+      <div className="key-row"><span>3</span><label>필요 권한<input value="잔고 · 주문내역 · 체결내역 읽기 전용" readOnly aria-readonly="true" /></label></div>
+      <div className="api-warning"><b>현재 차단</b><span><strong>지금은 API 키를 입력할 곳이 없습니다</strong>현재 버전에는 실제 KMS/Vault가 아직 연결되지 않아 키 보관소가 없습니다. KMS 연동이 끝난 뒤에만 별도 보안 등록창에서 API 키를 1회 입력하고, 서버 보안 저장소가 암호화해 보관합니다.</span></div>
       <div className={`integration-readiness ${readiness?.liveReady ? "live" : "demo"}`}><span>{readiness?.liveReady ? "준비" : "잠금"}</span><div><strong>{readiness?.liveReady ? "운영자 승인 게이트 충족" : "모의 운영으로 잠금됨"}</strong><p>{readiness?.liveReady ? "키·운영자 스위치·승인 계정이 확인됐습니다. 주문은 내부 안전 실행기만 요청할 수 있습니다." : `키 외에도 사용자별 보안 저장소, 운영자 승인, 승인 계정이 필요합니다. 현재 차단 조건 ${readiness?.liveBlockers?.length ?? 3}개.`}</p></div><b>외부 주문 차단</b></div>
-      <button type="button" className="btn primary wide" disabled={submitting} onClick={finish}>{submitting ? "요청 등록 중" : "읽기 전용 연결 요청"}</button>
+      <button type="button" className="btn primary wide" onClick={finish}>읽기 전용 연결 준비 요청</button>
       <button type="button" className="text-link center" onClick={() => go(backTo)}>등록하지 않고 돌아가기</button>
     </section>
   </main>;
@@ -806,7 +784,7 @@ function Dashboard({ go, connected, demoMode, enterDemo, openApi }: { go: (scree
     <section className="onboarding-panel panel"><div className="onboarding-icon">BT</div><h2>안전한 순서로 시작해볼까요?</h2><p>전략 생성 → 예시 백테스트 → 모의 위험 설정 → 데모 운영 순서로 진행합니다.</p><ol><li><b>1</b><span><strong>전략 만들기</strong>코딩 없이 조건과 액션을 조립해요</span></li><li><b>2</b><span><strong>예시 결과 확인</strong>현재는 실제 시세 백테스트가 아닌 설계 화면이에요</span></li><li><b>3</b><span><strong>모의 운영</strong>실제 주문 없이 상태 변경과 안전 제어를 확인해요</span></li></ol><div className="onboarding-actions"><button type="button" className="btn primary" onClick={() => go("builder")}>첫 전략 만들기</button><button type="button" className="btn secondary" onClick={enterDemo}>예시 데이터 둘러보기</button><button type="button" className="text-link" onClick={() => openApi("dashboard")}>거래소 연결 준비 확인</button></div></section>
   </div>;
   return <div className="product-page dashboard-page institutional-dashboard">
-    <PageTitle title="펀드 현황" subtitle="PAPER 포트폴리오 · 실제 운용 판단에 사용할 수 없는 예시 데이터" action={<div className="inline-actions"><span className="asof-chip">샘플 기준 2026-07-25 11:32 UTC</span>{demoMode && <button type="button" className="btn secondary" onClick={() => openApi("dashboard")}>연동 준비도</button>}</div>} />
+    <PageTitle title="펀드 현황" subtitle="PAPER 펀드 · 실제 운용 판단에 사용할 수 없는 예시 데이터" action={<div className="inline-actions"><span className="asof-chip">샘플 기준 2026-07-25 11:32 UTC</span>{demoMode && <button type="button" className="btn secondary" onClick={() => openApi("dashboard")}>연동 준비도</button>}</div>} />
     <section className="data-provenance-strip" aria-label="모의 데이터 출처">
       <strong>PAPER · 의사결정 금지</strong>
       <dl><div><dt>출처</dt><dd>고정 샘플 스냅샷</dd></div><div><dt>계산</dt><dd>UI 검증용 모의 원장</dd></div><div><dt>대사</dt><dd>샘플 체결 11:30 UTC</dd></div></dl>
@@ -823,7 +801,7 @@ function Dashboard({ go, connected, demoMode, enterDemo, openApi }: { go: (scree
     </section>
     <section className="institutional-dashboard-grid">
       <article className="panel institutional-positions">
-        <div className="panel-header"><div><h2>모의 포트폴리오 익스포저</h2><p>고정 샘플 원장에 있는 PAPER 포지션만 표시합니다</p></div><button type="button" className="table-action" aria-label="모의 주문 7건 보기" onClick={() => go("transactions")}>모의 주문 7건 보기</button></div>
+        <div className="panel-header"><div><h2>PAPER 펀드 보유 현황</h2><p>고정 샘플 원장에 있는 PAPER 보유분만 표시합니다</p></div><button type="button" className="table-action" aria-label="모의 주문 7건 보기" onClick={() => go("transactions")}>모의 주문 7건 보기</button></div>
         <div className="institutional-table-wrap"><table><thead><tr><th>상품</th><th>전략</th><th>포지션</th><th>평가금액</th><th>24시간 손익</th><th>총 비중</th><th>상태</th></tr></thead><tbody>{[
           ["BTC / KRW","시스템 캐리 v12","0.182 BTC","₩21.2억","+₩2,430만","31.2%","ACTIVE"],
           ["ETH / KRW","평균회귀 v7","1.93 ETH","₩15.4억","-₩810만","18.6%","ACTIVE"],
@@ -1042,7 +1020,7 @@ function ShadowOperationCenter({ notify }: { notify: (message: string) => void }
       <aside className="panel shadow-evidence-card"><header><div><span>고정된 실행 근거</span><h2>버전·정책·데이터 계보</h2></div><b>서버 원장</b></header><dl><div><dt>전략 버전</dt><dd>{snapshot ? `${snapshot.strategy.name} v${snapshot.strategy.version}` : "확인 중"}<small>{snapshot ? `${snapshot.strategy.contentHash.slice(0,12)}…` : ""}</small></dd></div><div><dt>위험 정책</dt><dd>{snapshot ? `정책 v${snapshot.riskPolicy.version}` : "확인 중"}<small>{snapshot ? `주문당 ${krw(snapshot.riskPolicy.maxOrderKrw)}` : ""}</small></dd></div><div><dt>시장 표본</dt><dd>{snapshot?.marketData ? `${snapshot.marketData.candleCount}개 캔들` : "실행 전"}<small>{snapshot?.marketData ? `${snapshot.marketData.payloadHash.slice(0,12)}…` : ""}</small></dd></div><div><dt>백테스트 엔진</dt><dd>{snapshot?.backtest?.engineVersion ?? "실행 전"}<small>비용·슬리피지 포함</small></dd></div></dl></aside>
     </section>
     <section className="shadow-ledger-grid">
-      <article className="panel shadow-position"><div className="panel-header"><div><h2>섀도 포트폴리오</h2><p>실제 자산이 아닌 검증 전용 내부 장부</p></div><span>{snapshot?.deployment.status === "running" ? "운용 중" : "준비"}</span></div><dl><div><dt>현금</dt><dd>{snapshot ? krw(snapshot.deployment.cashMinor) : "—"}</dd></div><div><dt>{snapshot?.position.asset ?? "자산"} 수량</dt><dd>{snapshot ? Number(snapshot.position.quantity).toLocaleString("ko-KR",{maximumFractionDigits:8}) : "—"}</dd></div><div><dt>평가액</dt><dd>{snapshot ? krw(snapshot.position.marketValueMinor) : "—"}</dd></div><div><dt>미실현 손익</dt><dd className={(snapshot?.position.unrealizedPnlMinor ?? 0) >= 0 ? "positive" : "negative"}>{snapshot ? krw(snapshot.position.unrealizedPnlMinor) : "—"}</dd></div><div><dt>실현 손익</dt><dd className={(snapshot?.position.realizedPnlMinor ?? 0) >= 0 ? "positive" : "negative"}>{snapshot ? krw(snapshot.position.realizedPnlMinor) : "—"}</dd></div></dl></article>
+      <article className="panel shadow-position"><div className="panel-header"><div><h2>섀도 펀드 보유 현황</h2><p>실제 자산이 아닌 검증 전용 내부 장부</p></div><span>{snapshot?.deployment.status === "running" ? "운용 중" : "준비"}</span></div><dl><div><dt>현금</dt><dd>{snapshot ? krw(snapshot.deployment.cashMinor) : "—"}</dd></div><div><dt>{snapshot?.position.asset ?? "자산"} 수량</dt><dd>{snapshot ? Number(snapshot.position.quantity).toLocaleString("ko-KR",{maximumFractionDigits:8}) : "—"}</dd></div><div><dt>평가액</dt><dd>{snapshot ? krw(snapshot.position.marketValueMinor) : "—"}</dd></div><div><dt>미실현 손익</dt><dd className={(snapshot?.position.unrealizedPnlMinor ?? 0) >= 0 ? "positive" : "negative"}>{snapshot ? krw(snapshot.position.unrealizedPnlMinor) : "—"}</dd></div><div><dt>실현 손익</dt><dd className={(snapshot?.position.realizedPnlMinor ?? 0) >= 0 ? "positive" : "negative"}>{snapshot ? krw(snapshot.position.realizedPnlMinor) : "—"}</dd></div></dl></article>
       <article className="panel shadow-reconciliation"><div className="panel-header"><div><h2>주기 대사</h2><p>주문 의도·위험판정·주문·체결 수량 비교</p></div><span>{snapshot?.reconciliation?.status === "matched" ? "일치" : snapshot?.reconciliation ? "예외" : "실행 전"}</span></div>{snapshot?.reconciliation ? <><div className="recon-counts"><span>의도 <b>{snapshot.reconciliation.intentCount}</b></span><span>주문 <b>{snapshot.reconciliation.orderCount}</b></span><span>체결 <b>{snapshot.reconciliation.fillCount}</b></span><span>예외 <b>{snapshot.reconciliation.exceptionCount}</b></span></div><code>{snapshot.reconciliation.evidenceHash.slice(0,16)}…{snapshot.reconciliation.evidenceHash.slice(-8)}</code></> : <p>첫 섀도 주기 이후 대사 증적이 생성됩니다.</p>}</article>
     </section>
     <section className="panel shadow-orders"><div className="panel-header"><div><h2>내부 모의 체결 원장</h2><p>구매·판매 주문이 아니라 위험검사를 통과한 섀도 기록입니다</p></div><span>{snapshot?.recentOrders.length ?? 0}건</span></div>{snapshot?.recentOrders.length ? <div className="shadow-order-table"><div><b>주문 ID</b><b>구분</b><b>수량</b><b>체결가</b><b>비용</b><b>상태</b></div>{snapshot.recentOrders.map((order) => <div key={order.id}><code>{order.clientOrderId.slice(0,18)}</code><span>{order.side === "buy" ? "매수" : "매도"}</span><span>{Number(order.quantity).toLocaleString("ko-KR",{maximumFractionDigits:8})}</span><span>{krw(order.priceMinor)}</span><span>{krw(order.feeMinor)}</span><b>모의 체결</b></div>)}</div> : <div className="control-empty">현재 표본에서 체결 신호가 발생하면 이 원장에만 기록됩니다.</div>}</section>

@@ -1670,6 +1670,62 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
   font-size:14px;
 }
 
+/* Desktop reading scale: this console is used at arm's length on wide monitors. */
+@media(min-width:721px){
+  .product{
+    font-size:15px;
+  }
+  .institutional-header nav button{
+    font-size:13px;
+  }
+  .institutional-sidebar button{
+    font-size:14px;
+    line-height:1.35;
+  }
+  .product-page .page-title p,
+  .product-page :where(p,small,dt,dd),
+  .approval-panel>button strong,
+  .approval-panel>button small,
+  .reconciliation-panel dt,
+  .reconciliation-panel dd,
+  .institutional-activity>div,
+  .audit-stream>div:not(.panel-header){
+    font-size:13px!important;
+  }
+  .product-page :where(th,td),
+  .institutional-positions th,
+  .limit-matrix th,
+  .live-order-table th,
+  .institutional-positions td,
+  .limit-matrix td,
+  .live-order-table td{
+    font-size:13px!important;
+  }
+  .institutional-status-strip,
+  .institutional-status-strip>b,
+  .institutional-status-strip span,
+  .data-provenance-strip>strong,
+  .data-provenance-strip dd,
+  .data-provenance-strip>b,
+  .data-provenance-strip dt,
+  .institutional-kpis label,
+  .summary-card label,
+  .control-summary-grid span{
+    font-size:12px!important;
+  }
+  .product-page .btn,
+  .control-toolbar .btn{
+    font-size:14px;
+  }
+  .api-card>p,
+  .api-card>label,
+  .key-row label,
+  .api-warning,
+  .secure-note{
+    font-size:14px;
+  }
+}
+
 @media(max-width:720px){
   .product-page :where(p,small,dt,dd){
     font-size:12px!important;
