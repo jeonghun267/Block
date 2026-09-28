@@ -2,6 +2,8 @@
 
 BlockTrade의 화면은 장시간 운용, 빠른 예외 판단과 감사 가능성을 우선합니다. 일반 소비자용 코인 앱의 네온 컬러, 이모지, 둥근 홍보 카드와 과장된 수익률 표현을 사용하지 않습니다.
 
+화면설계 원본은 Figma `04 화면설계` 페이지입니다: https://www.figma.com/design/Dh9YfmsPqm5AoROSBUUwT7/%EC%98%A4%EC%A0%95%ED%9B%88_%EB%B8%94%EB%A1%9D%ED%8A%B8%EB%A0%88%EC%9D%B4%EB%93%9C?node-id=1-3 — 프레임 `01 랜딩`~`27 설정`은 `app/page.tsx`의 `Screen` 27개와 같은 순서로 대응합니다.
+
 ## 시각 방향
 
 - 브랜드 바탕: Graphite Black `#080B11`

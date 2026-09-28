@@ -5,7 +5,7 @@ BlockTrade는 조건·지표·주문 액션을 블록으로 조립하고, 백테
 현재 공개 버전은 **실제 주문과 결제가 잠긴 제품 검증용 데모**입니다. 최종 제품 방향은 고객 자산과 출금 권한을 보관하지 않는 **비수탁형 기관용 가상자산 자동매매 운영체제(Non-custodial Institutional Crypto Trading OS)**입니다.
 
 - Live site: https://blocktrade-webapp.popmin07.chatgpt.site
-- Figma: https://www.figma.com/design/Dh9YfmsPqm5AoROSBUUwT7/UI-UX-%EC%88%98%EC%97%85?node-id=0-1
+- Figma 화면설계(27개 화면 · 화면 흐름도): https://www.figma.com/design/Dh9YfmsPqm5AoROSBUUwT7/%EC%98%A4%EC%A0%95%ED%9B%88_%EB%B8%94%EB%A1%9D%ED%8A%B8%EB%A0%88%EC%9D%B4%EB%93%9C?node-id=1-3
 
 > 이 문서는 제품·기술 설계 자료이며 법률·투자 자문이 아닙니다. 실제 영업과 실거래 전에는 대상 국가, 고객 유형, 자산, 거래소와 수익모델에 맞는 서면 법률 검토가 필요합니다.
 
