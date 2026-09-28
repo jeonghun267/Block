@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen as ui } from "@testing-library/react";
+import { cleanup, render, screen as ui, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Home from "../app/page";
 import { DEFAULT_OPERATION_SNAPSHOT, type OperationSnapshot } from "../lib/operations";
@@ -302,5 +302,77 @@ describe("BlockTrade 핵심 사용자 흐름", () => {
     expect(await ui.findByRole("heading", { name: "ETH 기준가 변동 전략" })).toBeTruthy();
     expect(fetchMock.mock.calls.some((call) => String(call[1]?.body || "").includes('"action":"subscribe"'))).toBe(true);
     expect(fetchMock.mock.calls.some((call) => String(call[1]?.body || "").includes('"action":"publish"'))).toBe(true);
+  });
+
+  it("PC에서는 콘솔 메뉴 토글로 사이드바를 접었다가 다시 펼친다", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Home />);
+
+    await user.click(ui.getByRole("button", { name: "기관 전용 접속" }));
+    await user.click(ui.getByRole("button", { name: /카카오로 로그인/ }));
+    const toggle = ui.getByRole("button", { name: "콘솔 메뉴" });
+    const shell = container.querySelector(".product") as HTMLElement;
+    expect(typeof window.matchMedia).not.toBe("function");
+    expect(toggle.getAttribute("aria-controls")).toBe("console-menu");
+    expect(ui.getByRole("navigation", { name: "콘솔 메뉴" }).id).toBe("console-menu");
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(shell.classList.contains("sidebar-collapsed")).toBe(false);
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(shell.classList.contains("sidebar-collapsed")).toBe(true);
+    expect(shell.classList.contains("drawer-open")).toBe(false);
+    expect(ui.queryByRole("button", { name: "메뉴 닫기" })).toBeNull();
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(shell.classList.contains("sidebar-collapsed")).toBe(false);
+  });
+
+  it("태블릿·모바일에서는 콘솔 메뉴가 서랍으로 열리고 메뉴 선택·Esc·배경 클릭으로 닫힌다", async () => {
+    vi.stubGlobal("matchMedia", vi.fn((query: string) => ({
+      matches: /max-width:\s*900px/.test(query),
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(() => false),
+    })));
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok:true, status:200, json:async () => ({ snapshot:DEFAULT_MARKETPLACE_SNAPSHOT }) }) as Response));
+    const user = userEvent.setup();
+    const { container } = render(<Home />);
+
+    await user.click(ui.getByRole("button", { name: "기관 전용 접속" }));
+    await user.click(ui.getByRole("button", { name: /카카오로 로그인/ }));
+    const toggle = ui.getByRole("button", { name: "콘솔 메뉴" });
+    const shell = container.querySelector(".product") as HTMLElement;
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(shell.classList.contains("drawer-open")).toBe(false);
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(shell.classList.contains("drawer-open")).toBe(true);
+    expect(shell.classList.contains("sidebar-collapsed")).toBe(false);
+    expect(ui.getByRole("button", { name: "메뉴 닫기" })).toBeTruthy();
+
+    await user.click(within(ui.getByRole("navigation", { name: "콘솔 메뉴" })).getByRole("button", { name: "전략 마켓" }));
+    expect(await ui.findByRole("heading", { name: "전략 사용권 마켓" })).toBeTruthy();
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(shell.classList.contains("drawer-open")).toBe(false);
+    expect(ui.queryByRole("button", { name: "메뉴 닫기" })).toBeNull();
+
+    await user.click(toggle);
+    expect(shell.classList.contains("drawer-open")).toBe(true);
+    await user.keyboard("{Escape}");
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(shell.classList.contains("drawer-open")).toBe(false);
+    expect(document.activeElement).toBe(toggle);
+
+    await user.click(toggle);
+    await user.click(ui.getByRole("button", { name: "메뉴 닫기" }));
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(shell.classList.contains("drawer-open")).toBe(false);
   });
 });

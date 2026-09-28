@@ -1727,3 +1727,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
     font-size:12px;
   }
 }
+
+/* Console menu toggle — desktop collapses the sidebar; compact widths turn it into an off-canvas drawer. */
+.institutional-header .sidebar-toggle{flex:0 0 auto;display:inline-grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid #343840;border-radius:4px;background:#17191d;color:#c5c9cf}.institutional-header .sidebar-toggle:hover{background:#202329;color:#f1f2f3}.institutional-header .sidebar-toggle:focus-visible{outline:2px solid #c5c9cf;outline-offset:2px}.institutional-header .sidebar-toggle svg{display:block}
+.sidebar-backdrop{display:none}
+@media(min-width:901px){.institutional-sidebar{transition:transform .22s ease,visibility 0s linear 0s}.product-main{transition:margin-left .22s ease}.product.sidebar-collapsed .institutional-sidebar{transform:translateX(-100%);visibility:hidden;transition:transform .22s ease,visibility 0s linear .22s}.product.sidebar-collapsed .product-main{margin-left:0}}
+@media(max-width:900px){.institutional-sidebar{display:block;position:fixed;top:62px;bottom:0;left:0;z-index:45;width:210px;max-width:82vw;overflow-y:auto;overscroll-behavior:contain;transform:translateX(-100%);visibility:hidden;transition:transform .22s ease,visibility 0s linear .22s}.product.drawer-open .institutional-sidebar{transform:none;visibility:visible;box-shadow:12px 0 32px rgba(0,0,0,.32);transition:transform .22s ease,visibility 0s linear 0s}.product-main{margin-left:0}.product.drawer-open .sidebar-backdrop{display:block;position:fixed;top:62px;right:0;bottom:0;left:0;z-index:44;padding:0;border:0;border-radius:0;background:rgba(9,11,13,.5);cursor:default}}
+@media(max-width:560px){.institutional-header .header-brand{gap:8px}.institutional-header .env-status{padding-left:8px}}

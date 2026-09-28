@@ -164,3 +164,14 @@ test("콘솔 화면 이동은 좌측 사이드바 하나로만 제공한다", ()
     assert.match(sidebarNav, new RegExp(`id: "${id}"`));
   }
 });
+
+test("헤더의 콘솔 메뉴 토글은 좌측 사이드바를 제어 대상으로 가리킨다", () => {
+  const pageFile = new URL("../app/page.tsx", import.meta.url).pathname;
+  const source = readFileSync(pageFile, "utf8");
+  const header = source.slice(source.indexOf("function AppHeader"), source.indexOf("function AppSidebar"));
+  const sidebar = source.slice(source.indexOf("function AppSidebar"), source.indexOf("function BottomNav"));
+
+  assert.match(header, /<button type="button" className="sidebar-toggle" aria-controls="console-menu" aria-expanded=\{sidebarOpen\} aria-label="콘솔 메뉴" onClick=\{toggleSidebar\}>/);
+  assert.match(sidebar, /<nav id="console-menu" className="app-sidebar institutional-sidebar" aria-label="콘솔 메뉴">/);
+  assert.match(source, /className="sidebar-backdrop" aria-label="메뉴 닫기" tabIndex=\{-1\} onClick=\{closeDrawer\}/);
+});
