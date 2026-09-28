@@ -141,10 +141,26 @@ test("PC 기관 콘솔은 탐색·본문·표에 읽을 수 있는 최소 글자
   const source = readFileSync(styleFile, "utf8");
   const baseline = source.slice(source.indexOf("Desktop console readability baseline"));
 
-  assert.match(baseline, /\.institutional-header nav button\{\s*font-size:12px;/);
+  assert.match(baseline, /\.institutional-header \.env-status\{\s*font-size:12px;/);
   assert.match(baseline, /\.institutional-sidebar button\{[\s\S]*?font-size:13px;/);
   assert.match(baseline, /\.product-page :where\(p,small,dt,dd\)\{\s*font-size:12px!important;/);
   assert.match(baseline, /\.product-page :where\(th\)\{\s*font-size:11px!important;/);
   assert.match(baseline, /\.product-page :where\(td\)\{\s*font-size:12px!important;/);
   assert.match(baseline, /\.product\.dark\{[\s\S]*?--muted:#aeb9c9;/);
+});
+
+test("콘솔 화면 이동은 좌측 사이드바 하나로만 제공한다", () => {
+  const pageFile = new URL("../app/page.tsx", import.meta.url).pathname;
+  const source = readFileSync(pageFile, "utf8");
+  const header = source.slice(source.indexOf("function AppHeader"), source.indexOf("function AppSidebar"));
+  const sidebarNav = source.slice(source.indexOf("const SIDEBAR_NAV"), source.indexOf("const SIDEBAR_PARENT"));
+
+  assert.doesNotMatch(source, /PRIMARY_NAV/);
+  assert.doesNotMatch(header, /<nav/);
+  assert.doesNotMatch(header, /go\("settings"\)/);
+  assert.doesNotMatch(header, /<button[^>]*>모의/);
+  assert.match(header, /className="env-status"/);
+  for (const id of ["dashboard", "control", "shadow", "operations", "builder", "market", "copilot", "backtest", "notifications", "settings", "api"]) {
+    assert.match(sidebarNav, new RegExp(`id: "${id}"`));
+  }
 });

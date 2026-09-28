@@ -164,28 +164,33 @@ const TRANSACTIONS = [
   { id:"T-250309-01", date:"2025.03.09 10:20", side:"매수", asset:"ETH", strategy:"리밸런싱", amount:"0.22 ETH", price:"₩744,200", pnl:"—", status:"체결" },
 ];
 
-const PRIMARY_NAV: { id: Screen; label: string }[] = [
-  { id: "dashboard", label: "펀드 운용" },
-  { id: "control", label: "리스크·통제" },
-  { id: "shadow", label: "섀도 운용" },
-  { id: "operations", label: "주문관리" },
-  { id: "builder", label: "전략" },
-  { id: "market", label: "전략 마켓" },
-  { id: "backtest", label: "리서치" },
-];
-
 const SIDEBAR_NAV: { id: Screen; icon: string; label: string }[] = [
   { id: "dashboard", icon: "01", label: "펀드 현황" },
   { id: "control", icon: "02", label: "리스크·통제" },
   { id: "shadow", icon: "03", label: "섀도 운용" },
   { id: "operations", icon: "04", label: "주문·체결" },
   { id: "builder", icon: "05", label: "전략 등록부" },
-  { id: "copilot", icon: "06", label: "AI 전략 코파일럿" },
-  { id: "backtest", icon: "07", label: "리서치 랩" },
-  { id: "notifications", icon: "08", label: "알림" },
-  { id: "settings", icon: "09", label: "관리" },
-  { id: "api", icon: "10", label: "외부 연동" },
+  { id: "market", icon: "06", label: "전략 마켓" },
+  { id: "copilot", icon: "07", label: "AI 전략 코파일럿" },
+  { id: "backtest", icon: "08", label: "리서치 랩" },
+  { id: "notifications", icon: "09", label: "알림" },
+  { id: "settings", icon: "10", label: "관리" },
+  { id: "api", icon: "11", label: "외부 연동" },
 ];
+
+// 사이드바에 없는 하위 화면은 들어온 메뉴를 활성으로 유지해 어디서 왔는지와 돌아갈 곳을 보여준다.
+const SIDEBAR_PARENT: Partial<Record<Screen, Screen>> = {
+  marketDetail: "market",
+  creator: "market",
+  library: "builder",
+  execution: "backtest",
+  postmortem: "backtest",
+  transactions: "operations",
+  notificationDetail: "notifications",
+  profile: "settings",
+  billing: "settings",
+  support: "settings",
+};
 
 const DEFAULT_PRICE_CONFIG: PriceConditionConfig = { type:"price_change", metric:"return", asset:"ETH", direction:"up", threshold:2.5, window:"4h", reference:"window_open", priceSource:"last_trade", trigger:"cross", confirmation:"candle_close", missingData:"skip", repeat:"once_per_candle" };
 const DEFAULT_RATIO_CONFIG: RatioActionConfig = { type:"ratio_trade", side:"sell", ratio:30, basis:"holding_asset" };
@@ -495,7 +500,7 @@ export default function Home() {
   if (screen === "api") return <><ApiSetup go={go} notify={notify} backTo={apiReturn} />{toast && <Toast message={toast} />}</>;
 
   return <div className={dark ? "product dark" : "product"}>
-    <AppHeader screen={screen} go={go} dark={dark} setDark={setDark} profile={profile} />
+    <AppHeader go={go} dark={dark} setDark={setDark} profile={profile} />
     <AppSidebar screen={screen} go={go} openApi={openApi} unreadCount={NOTIFICATIONS.slice(0, 2).filter((item) => !readNotifications.has(item.id)).length} />
     <main className="product-main">
       {screen === "dashboard" && <Dashboard go={go} connected={connected} demoMode={demoMode} enterDemo={enterDemo} openApi={openApi} />}
@@ -761,13 +766,15 @@ function ApiSetup({ go, notify, backTo }: { go: (screen: Screen) => void; notify
   </main>;
 }
 
-function AppHeader({ screen, go, dark, setDark, profile }: { screen: Screen; go: (screen: Screen) => void; dark: boolean; setDark: (value: boolean) => void; profile: Profile }) {
-  return <header className="app-header institutional-header"><button type="button" className="header-logo" onClick={() => go("dashboard")} aria-label="대시보드로 이동"><Logo /></button><nav aria-label="웹 주요 메뉴">{PRIMARY_NAV.map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "operations" ? "운영센터" : item.id === "builder" ? "전략 빌더" : item.id === "market" ? "전략 마켓" : undefined} aria-current={screen === item.id ? "page" : undefined} key={item.id} onClick={() => go(item.id)}>{item.label}</button>)}</nav><div className="header-actions"><span className="mode-chip">모의</span><button type="button" onClick={() => setDark(!dark)}>{dark ? "라이트" : "다크"}</button><button type="button" className={screen === "settings" ? "active" : ""} aria-label="설정" onClick={() => go("settings")}>관리</button><button type="button" className="user-chip" onClick={() => go("profile")} aria-label="프로필 편집">{profile.nickname.slice(0, 2)}</button></div></header>;
+function AppHeader({ go, dark, setDark, profile }: { go: (screen: Screen) => void; dark: boolean; setDark: (value: boolean) => void; profile: Profile }) {
+  return <header className="app-header institutional-header"><div className="header-brand"><button type="button" className="header-logo" onClick={() => go("dashboard")} aria-label="대시보드로 이동"><Logo /></button><span className="env-status" title="실제 거래소 주문이 차단된 모의 환경입니다">모의 환경</span></div><div className="header-actions"><button type="button" onClick={() => setDark(!dark)}>{dark ? "라이트" : "다크"}</button><button type="button" className="user-chip" onClick={() => go("profile")} aria-label="프로필 편집">{profile.nickname.slice(0, 2)}</button></div></header>;
 }
 
 function AppSidebar({ screen, go, openApi, unreadCount }: { screen: Screen; go: (screen: Screen) => void; openApi: (returnTo: Screen) => void; unreadCount: number }) {
   const navigate = (next: Screen) => next === "api" ? openApi("dashboard") : go(next);
-  return <aside className="app-sidebar institutional-sidebar"><label>투자 운용</label>{SIDEBAR_NAV.slice(0,5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "builder" ? "전략 빌더" : undefined} key={item.id} onClick={() => navigate(item.id)}><i>{item.icon}</i>{item.label}</button>)}<label>감독·관리</label>{SIDEBAR_NAV.slice(5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "notifications" ? "알림" : item.id === "settings" ? "설정" : undefined} key={item.id} onClick={() => navigate(item.id)}><i>{item.icon}</i>{item.label}{item.id === "notifications" && unreadCount > 0 && <em>{unreadCount}</em>}</button>)}</aside>;
+  const section = SIDEBAR_PARENT[screen] ?? screen;
+  const item = (entry: typeof SIDEBAR_NAV[number]) => <button type="button" className={section === entry.id ? "active" : ""} aria-current={screen === entry.id ? "page" : undefined} aria-label={entry.id === "builder" ? "전략 빌더" : entry.id === "notifications" ? "알림" : entry.id === "settings" ? "설정" : undefined} key={entry.id} onClick={() => navigate(entry.id)}><i aria-hidden="true">{entry.icon}</i>{entry.label}{entry.id === "notifications" && unreadCount > 0 && <em>{unreadCount}</em>}</button>;
+  return <nav className="app-sidebar institutional-sidebar" aria-label="콘솔 메뉴"><label>투자 운용</label>{SIDEBAR_NAV.slice(0,6).map(item)}<label>감독·관리</label>{SIDEBAR_NAV.slice(6).map(item)}</nav>;
 }
 
 function BottomNav({ screen, go }: { screen: Screen; go: (screen: Screen) => void }) {

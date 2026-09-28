@@ -174,7 +174,7 @@ describe("BlockTrade 핵심 사용자 흐름", () => {
 
     await user.click(ui.getByRole("button", { name: "기관 전용 접속" }));
     await user.click(ui.getByRole("button", { name: /카카오로 로그인/ }));
-    await user.click(ui.getByRole("button", { name: "운영센터" }));
+    await user.click(ui.getByRole("button", { name: "주문·체결" }));
     expect(ui.getByRole("heading", { name: "모의 운영센터" })).toBeTruthy();
     await ui.findByText("서버 저장됨");
 
