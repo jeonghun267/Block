@@ -1753,3 +1753,53 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .auth-split .auth-card h1,.auth-split .terms-card h1,.auth-split .auth-card>p,.auth-split .terms-card>p{text-align:left}
 .auth-step-label{margin:0 0 14px;color:#64748b;font-size:12px;font-weight:700;letter-spacing:.04em}
 @media (max-width:900px){.auth-screen.auth-split{grid-template-columns:1fr}.auth-brand-panel{min-height:0;flex-direction:row;align-items:center;padding:16px 20px}.auth-brand-copy,.auth-brand-panel>footer{display:none}.auth-form-area{align-items:stretch;padding:24px 16px 40px}}
+
+/* Numeric badges were replaced by SVG icons; give every icon slot a centred box. */
+.institutional-sidebar button i{display:grid;place-items:center;flex:0 0 22px}
+.bottom-nav button i{display:grid;place-items:center}
+.check svg{display:block}
+.chat-response>div i,.controls-tab section article>i,.security-tab section article>i,.copilot-blocks article>i{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#eaf1ff;color:#2563eb}
+.copilot-blocks article.action>i{background:#e7f7ef}.copilot-blocks article.risk>i{background:#fdecec}.copilot-blocks article.notice>i{background:#f3e8ff}
+.bt-control-principle li b{width:44px;display:flex;align-items:center}
+.validation-next-steps li b{display:inline-flex;align-items:center;color:#2563eb}
+.inspector-empty span{width:46px;height:46px;border:0;border-radius:14px;background:#eaf1ff;color:#2563eb}
+
+/* Sign-in and sign-up own the whole viewport: brand panel left, borderless form right. */
+.auth-screen.auth-split{grid-template-columns:minmax(400px,40%) minmax(0,1fr);background:#f6f7f9}
+.auth-brand-panel{position:relative;overflow:hidden;padding:44px 52px;background:linear-gradient(160deg,#080b11 0%,#0e1830 62%,#14244a 100%)}
+.auth-brand-panel::before{content:"";position:absolute;right:-180px;top:-140px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.34),rgba(37,99,235,0) 70%);pointer-events:none}
+.auth-brand-panel>*{position:relative}
+.auth-brand-copy h2{font-size:34px;font-weight:750;letter-spacing:-.03em}
+.auth-brand-copy p{font-size:14px}
+.auth-steps li{grid-template-columns:44px 1fr auto;min-height:58px;border-color:rgba(255,255,255,.08)!important;font-size:15px}
+.auth-steps li>i{width:26px;height:26px;display:grid;place-items:center;border:1.5px solid #334155;border-radius:50%;color:#fff;transition:background-color .25s cubic-bezier(.2,0,0,1),border-color .25s cubic-bezier(.2,0,0,1)}
+.auth-steps li.done>i{border-color:#2563eb;background:#2563eb}
+.auth-steps li.current>i{border-color:#60a5fa;box-shadow:0 0 0 5px rgba(96,165,250,.16)}
+.auth-steps li.current>i::after{content:"";width:8px;height:8px;border-radius:50%;background:#60a5fa}
+.auth-steps li.done::after,.auth-steps li.current::after{font-size:12px}
+.auth-form-area{align-items:center;justify-content:center;padding:64px 56px}
+.auth-split :is(.auth-card,.terms-card,.risk-card,.verify-card){width:min(480px,100%);padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;animation:authIn .32s cubic-bezier(.2,0,0,1) both}
+@keyframes authIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.auth-split :is(.auth-card,.terms-card,.risk-card,.verify-card) h1{margin:0 0 8px;font-size:30px;font-weight:750;letter-spacing:-.03em}
+.auth-split :is(.auth-card,.terms-card,.verify-card)>p{margin:0 0 28px;font-size:14px;line-height:1.6}
+.auth-split :is(.auth-card,.verify-card) label{font-size:13px;margin-bottom:16px}
+.auth-split :is(.auth-card,.verify-card) input,.auth-split .risk-input{height:52px;margin-top:8px;padding:0 16px;border:1.5px solid #e1e6ee;border-radius:12px;font-size:15px;transition:border-color .2s cubic-bezier(.2,0,0,1),box-shadow .2s cubic-bezier(.2,0,0,1)}
+.auth-split :is(.auth-card,.verify-card) input:focus,.auth-split .risk-input:focus{outline:0;border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.auth-split .btn{min-height:52px;border-radius:12px;font-size:15px}
+.auth-split :is(.agreement-list,.agreement.all,.understand,.risk-list,.secure-note,.terms-detail){border-radius:14px}
+.auth-split .check{width:22px;height:22px;border-radius:50%}
+.auth-split .check.checked{background:#2563eb;border-color:#2563eb}
+.auth-split .risk-card header>span{width:48px;height:48px;display:grid;place-items:center;border-radius:14px}
+.auth-split .risk-list{background:#fff}
+.auth-split .risk-list article{display:flex;gap:14px;align-items:flex-start}
+.auth-split .risk-list article>i{width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;border-radius:12px;background:#fff4e5;color:#b45309}
+.auth-split .risk-list strong{margin:2px 0 4px;font-size:14px}
+.auth-split .risk-list p{font-size:12px}
+.auth-progress{width:min(480px,100%);margin:0 0 24px}
+.auth-progress>div{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px}
+.auth-progress>div i{height:5px;border-radius:999px;background:#dfe5ee}
+.auth-progress>div i.done{background:#93b4f5}
+.auth-progress>div i.current{background:#2563eb}
+.auth-step-label{display:inline-flex;align-items:center;height:28px;margin:0;padding:0 12px;border-radius:999px;background:#eaf1ff;color:#1d4ed8;font-size:12px;font-weight:700;letter-spacing:0}
+@media (max-width:900px){.auth-screen.auth-split{grid-template-columns:1fr}.auth-brand-panel{padding:16px 20px}.auth-form-area{align-items:stretch;justify-content:flex-start;padding:24px 20px 40px}.auth-split :is(.auth-card,.terms-card,.risk-card,.verify-card),.auth-progress{width:100%}}
+@media (prefers-reduced-motion:reduce){.auth-split :is(.auth-card,.terms-card,.risk-card,.verify-card){animation:none}}

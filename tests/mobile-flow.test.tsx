@@ -41,12 +41,12 @@ describe("BlockTrade 연동 앱 흐름", () => {
     render(<MobileApp />);
 
     expect(await ui.findByText("동기화됨", {}, { timeout: 3000 })).toBeTruthy();
-    await user.click(ui.getByRole("button", { name: "02 운영" }));
+    await user.click(ui.getByRole("button", { name: "운영" }));
     expect(ui.getByRole("heading", { name: "모의 운영" })).toBeTruthy();
     await user.click(ui.getAllByRole("button", { name: "일시정지" })[0]);
     expect((await ui.findAllByRole("button", { name: "전략 재개" })).length).toBeGreaterThanOrEqual(2);
 
-    await user.click(ui.getByRole("button", { name: "03 주문" }));
+    await user.click(ui.getByRole("button", { name: "주문" }));
     await user.click(ui.getAllByRole("button", { name: /BTC\/KRW.*DCA 비트코인 적립/ })[0]);
     expect(ui.getByRole("heading", { name: "주문 상태 추적" })).toBeTruthy();
   });
@@ -56,7 +56,7 @@ describe("BlockTrade 연동 앱 흐름", () => {
     render(<MobileApp />);
     await ui.findByText("동기화됨", {}, { timeout: 3000 });
 
-    await user.click(ui.getByRole("button", { name: "02 운영" }));
+    await user.click(ui.getByRole("button", { name: "운영" }));
     await user.click(ui.getByRole("button", { name: "데모 상태 중단" }));
     const stopButton = ui.getByRole("button", { name: "모든 데모 상태 중단" });
     expect((stopButton as HTMLButtonElement).disabled).toBe(true);
@@ -64,7 +64,7 @@ describe("BlockTrade 연동 앱 흐름", () => {
     expect((stopButton as HTMLButtonElement).disabled).toBe(false);
     await user.click(ui.getByRole("button", { name: "돌아가기" }));
 
-    await user.click(ui.getByRole("button", { name: "05 설정" }));
+    await user.click(ui.getByRole("button", { name: "설정" }));
     await user.click(ui.getByRole("button", { name: /BlockTrade 설치형 웹앱/ }));
     expect(ui.getByRole("status").textContent).toContain("홈 화면에 추가");
   });
@@ -108,7 +108,7 @@ describe("BlockTrade 연동 앱 흐름", () => {
 
     expect(await ui.findByText("동기화됨")).toBeTruthy();
     expect(window.localStorage.getItem("blocktrade.app.session")).toBe("1");
-    await user.click(ui.getByRole("button", { name: "05 설정" }));
+    await user.click(ui.getByRole("button", { name: "설정" }));
     await user.click(ui.getByRole("button", { name: "앱 로그아웃" }));
     expect(ui.getByRole("heading", { name: "기관 계정으로 로그인" })).toBeTruthy();
     expect(window.localStorage.getItem("blocktrade.app.session")).toBeNull();
