@@ -1803,3 +1803,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .auth-step-label{display:inline-flex;align-items:center;height:28px;margin:0;padding:0 12px;border-radius:999px;background:#eaf1ff;color:#1d4ed8;font-size:12px;font-weight:700;letter-spacing:0}
 @media (max-width:900px){.auth-screen.auth-split{grid-template-columns:1fr}.auth-brand-panel{padding:16px 20px}.auth-form-area{align-items:stretch;justify-content:flex-start;padding:24px 20px 40px}.auth-split :is(.auth-card,.terms-card,.risk-card,.verify-card),.auth-progress{width:100%}}
 @media (prefers-reduced-motion:reduce){.auth-split :is(.auth-card,.terms-card,.risk-card,.verify-card){animation:none}}
+
+/* Console polish: the same rounded language as the app, kept calm for dense data.
+   Surfaces 14px, controls 10px, status chips are pills; tables stay square. */
+.product-page .panel,.product-page .summary-card,.institutional-kpis article,.product-page .market-card,.product-page .logic-block,
+.institutional-status-strip,.data-provenance-strip,.control-data-status,.control-readiness,.operations-health,.copilot-safety-strip,
+.builder-help-strip,.block-library,.builder-canvas,.market-access-strip{border-radius:14px}
+.product-page .panel,.product-page .summary-card,.institutional-kpis article,.product-page .market-card{box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(15,23,42,.04)}
+.dark .product-page .panel,.dark .product-page .summary-card,.dark .institutional-kpis article,.dark .product-page .market-card{box-shadow:none}
+.product-page .logic-block{border-radius:12px}
+.product-page .btn,.header-actions>button,.table-action,.add-block,.block-library button,.product-page select,.product-page input,.product-page textarea{border-radius:10px}
+.institutional-header .header-actions>button{border-radius:10px}
+.institutional-header .header-actions>.user-chip{width:34px;height:34px;padding:0;border-radius:50%}
+.institutional-header .mode-chip{border-radius:999px}
+.mode-chip,.asof-chip,.control-policy-chip,.institutional-state,.order-status,.verification,.market-risk,.paper-object-badge,
+.panel-header>span,.institutional-kpis label em,.copilot-examples button,.percent-presets button,.copilot-safety-strip span{border-radius:999px}
+.institutional-sidebar{padding:18px 12px}
+.institutional-sidebar button{border-radius:10px;transition:background-color .2s cubic-bezier(.2,0,0,1),color .2s cubic-bezier(.2,0,0,1)}
+.institutional-sidebar button:hover:not(.active){background:rgba(255,255,255,.05);color:#e5e7eb}
+.institutional-sidebar button.active{background:rgba(37,99,235,.2);color:#fff;box-shadow:none}
+.institutional-sidebar button.active i{color:#60a5fa}
+.notification-list>button>i,.operation-events>article>i{border-radius:10px}
+.emergency-modal{border-radius:18px;overflow:hidden}
+.modal-backdrop{backdrop-filter:blur(3px)}
+.emergency-modal .emergency-option,.emergency-modal input{border-radius:12px}
+.emergency-modal header>span{border-radius:10px}
+.toast{border-radius:12px;padding:12px 18px;font-size:13px}
+.toast span{border-radius:999px;padding:2px 8px}
+.product-page{animation:pageIn .3s cubic-bezier(.2,0,0,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.product-page{animation:none}.institutional-sidebar button{transition:none}}
