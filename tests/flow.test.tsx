@@ -19,20 +19,17 @@ describe("BlockTrade 핵심 사용자 흐름", () => {
     vi.unstubAllGlobals();
   });
 
-  it("약관과 위험 고지 후 계정·본인 인증을 거쳐 빈 대시보드로 이동한다", async () => {
+  it("약관 동의 후 계정·본인 인증을 마치고 위험 고지를 확인해야 빈 대시보드로 이동한다", async () => {
     const user = userEvent.setup();
     render(<Home />);
 
     await user.click(ui.getByRole("button", { name: "기관용 콘솔 체험" }));
     expect(ui.getByRole("heading", { name: "시작하기 전 약관에 동의해주세요" })).toBeTruthy();
+    expect(ui.queryByText("[필수] 투자 위험 고지")).toBeNull();
 
     await user.click(ui.getByRole("button", { name: "전체 동의 (선택 항목 포함)" }));
     await user.click(ui.getByRole("button", { name: "동의하고 시작하기 →" }));
-    expect(ui.getByRole("heading", { name: "투자 손실 가능성 고지" })).toBeTruthy();
-
-    await user.click(ui.getByRole("button", { name: /위 내용을 모두 이해했습니다/ }));
-    await user.type(ui.getByLabelText("위험 고지 확인 문구"), "이해했습니다");
-    await user.click(ui.getByRole("button", { name: "동의하고 계속" }));
+    expect(ui.getByRole("heading", { name: "계정 만들기" })).toBeTruthy();
 
     await user.type(ui.getByLabelText("닉네임"), "정훈");
     await user.type(ui.getByLabelText("이메일"), "tester@example.com");
@@ -48,6 +45,12 @@ describe("BlockTrade 핵심 사용자 흐름", () => {
     await user.click(ui.getByRole("button", { name: "인증번호 받기" }));
     await user.type(ui.getByLabelText("인증번호"), "123456");
     await user.click(ui.getByRole("button", { name: "인증 완료" }));
+
+    expect(ui.getByRole("heading", { name: "투자 손실 가능성 고지" })).toBeTruthy();
+    expect((ui.getByRole("button", { name: "동의하고 계속" }) as HTMLButtonElement).disabled).toBe(true);
+    await user.click(ui.getByRole("button", { name: /위 내용을 모두 이해했습니다/ }));
+    await user.type(ui.getByLabelText("위험 고지 확인 문구"), "이해했습니다");
+    await user.click(ui.getByRole("button", { name: "동의하고 계속" }));
 
     expect(ui.getByRole("heading", { name: "모의 운영을 시작할 준비가 됐어요" })).toBeTruthy();
     expect(ui.getByRole("button", { name: "첫 전략 만들기" })).toBeTruthy();

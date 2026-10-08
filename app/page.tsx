@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Icon, type IconName } from "./icons";
+import { CountUp } from "./count-up";
 import {
   DEFAULT_OPERATION_SNAPSHOT,
   type OperationCommandInput,
@@ -174,17 +176,17 @@ const PRIMARY_NAV: { id: Screen; label: string }[] = [
   { id: "backtest", label: "리서치" },
 ];
 
-const SIDEBAR_NAV: { id: Screen; icon: string; label: string }[] = [
-  { id: "dashboard", icon: "01", label: "펀드 현황" },
-  { id: "control", icon: "02", label: "리스크·통제" },
-  { id: "shadow", icon: "03", label: "섀도 운용" },
-  { id: "operations", icon: "04", label: "주문·체결" },
-  { id: "builder", icon: "05", label: "전략 등록부" },
-  { id: "copilot", icon: "06", label: "AI 전략 코파일럿" },
-  { id: "backtest", icon: "07", label: "리서치 랩" },
-  { id: "notifications", icon: "08", label: "알림" },
-  { id: "settings", icon: "09", label: "관리" },
-  { id: "api", icon: "10", label: "외부 연동" },
+const SIDEBAR_NAV: { id: Screen; icon: IconName; label: string }[] = [
+  { id: "dashboard", icon: "layout", label: "펀드 현황" },
+  { id: "control", icon: "shield", label: "리스크·통제" },
+  { id: "shadow", icon: "eye", label: "섀도 운용" },
+  { id: "operations", icon: "receipt", label: "주문·체결" },
+  { id: "builder", icon: "blocks", label: "전략 등록부" },
+  { id: "copilot", icon: "sparkles", label: "AI 전략 코파일럿" },
+  { id: "backtest", icon: "flask", label: "리서치 랩" },
+  { id: "notifications", icon: "bell", label: "알림" },
+  { id: "settings", icon: "settings", label: "관리" },
+  { id: "api", icon: "plug", label: "외부 연동" },
 ];
 
 const DEFAULT_PRICE_CONFIG: PriceConditionConfig = { type:"price_change", metric:"return", asset:"ETH", direction:"up", threshold:2.5, window:"4h", reference:"window_open", priceSource:"last_trade", trigger:"cross", confirmation:"candle_close", missingData:"skip", repeat:"once_per_candle" };
@@ -565,28 +567,45 @@ function Landing({ go, connected }: { go: (screen: Screen) => void; connected: b
     {explorerOpen && <section className="landing-product-explorer bt-product-stage" id="product-explorer">
       <header><div><span className="eyebrow">{sectionCopy.eyebrow}</span><h2>{sectionCopy.title}</h2><p>{sectionCopy.description}</p></div><div className="bt-product-header-actions"><nav aria-label="제품 화면 선택">{publicTabs.map(([id, label]) => <button type="button" aria-pressed={section === id} className={section === id ? "active" : ""} key={id} onClick={() => setSection(id)}>{label}</button>)}</nav><button type="button" className="bt-product-close" aria-label="제품 화면 닫기" onClick={() => setExplorerOpen(false)}>닫기</button></div></header>
       {section === "platform" && <div className="landing-tab-panel platform-tab" role="tabpanel" aria-label="플랫폼 화면">
-        <section className="landing-chat-demo"><header><span>AI 전략 코파일럿</span><b>주문 실행 불가</b></header><div className="chat-request"><small>운용역</small><p>BTC가 최근 4시간 고점에서 5% 하락하면 현금 10%를 매수하고, 일일 손실 3%에서 중단해줘.</p></div><div className="chat-response"><small>구조화된 전략 초안</small>{["조건 · BTC 4시간 고점 대비 낙폭 5%","실행 · 사용 가능 원화의 10% 매수","위험 · 일일 손실 3%에서 전략 중단"].map((item,index) => <div key={item}><i>{String(index+1).padStart(2,"0")}</i><span>{item}</span></div>)}<footer><span>서버 검증 통과</span><b>사람의 승인 필요</b></footer></div></section>
+        <section className="landing-chat-demo"><header><span>AI 전략 코파일럿</span><b>주문 실행 불가</b></header><div className="chat-request"><small>운용역</small><p>BTC가 최근 4시간 고점에서 5% 하락하면 현금 10%를 매수하고, 일일 손실 3%에서 중단해줘.</p></div><div className="chat-response"><small>구조화된 전략 초안</small>{([["activity","조건 · BTC 4시간 고점 대비 낙폭 5%"],["play","실행 · 사용 가능 원화의 10% 매수"],["shield","위험 · 일일 손실 3%에서 전략 중단"]] as [IconName,string][]).map(([icon,item]) => <div key={item}><i><Icon name={icon} size={14} /></i><span>{item}</span></div>)}<footer><span>서버 검증 통과</span><b>사람의 승인 필요</b></footer></div></section>
         <aside className="landing-version-demo"><header><div><span>전략 등록부</span><strong>BTC 낙폭 매수 전략</strong></div><b>초안 v1</b></header><dl><div><dt>생성 방식</dt><dd>자연어 → 블록</dd></div><div><dt>조건 충돌</dt><dd className="good">없음</dd></div><div><dt>주문 권한</dt><dd className="blocked">차단</dd></div><div><dt>다음 단계</dt><dd>리스크 승인 요청</dd></div></dl><button type="button" onClick={() => go("terms")}>기관용 콘솔에서 만들기 →</button></aside>
       </div>}
       {section === "controls" && <div className="landing-tab-panel controls-tab" role="tabpanel" aria-label="통제 체계 화면">
-        <section><header><div><span>2인 승인 대기열</span><strong>자기 승인 차단</strong></div><b>2건 대기</b></header>{[["시스템 캐리 v12","박지훈 제출","리스크 책임자"],["ETH 평균회귀 v7","김서윤 제출","준법 책임자"]].map((item,index) => <article key={item[0]}><i>{String(index+1).padStart(2,"0")}</i><div><strong>{item[0]}</strong><small>{item[1]}</small></div><span>{item[2]}</span><b>검토 대기</b></article>)}</section>
+        <section><header><div><span>2인 승인 대기열</span><strong>자기 승인 차단</strong></div><b>2건 대기</b></header>{[["시스템 캐리 v12","박지훈 제출","리스크 책임자"],["ETH 평균회귀 v7","김서윤 제출","준법 책임자"]].map((item) => <article key={item[0]}><i><Icon name="clipboard" size={16} /></i><div><strong>{item[0]}</strong><small>{item[1]}</small></div><span>{item[2]}</span><b>검토 대기</b></article>)}</section>
         <aside><header><span>주문 전 위험검사</span><b>정책 v6</b></header>{[["총 익스포저","62.4 / 80%","통과"],["단일 자산 집중도","31.2 / 40%","통과"],["거래소 집중도","58.0 / 65%","주의"],["일일 손실","0.7 / 3%","통과"]].map((item) => <div key={item[0]}><span>{item[0]}</span><strong>{item[1]}</strong><b className={item[2] === "주의" ? "watch" : "pass"}>{item[2]}</b></div>)}</aside>
       </div>}
       {section === "security" && <div className="landing-tab-panel security-tab" role="tabpanel" aria-label="보안 화면">
-        <section><header><span>비밀정보 경계</span><b>비수탁형</b></header>{[["거래소 키","브라우저 저장 금지","KMS 연결 전 잠금"],["출금 권한","허용하지 않음","서버 차단"],["주문 실행","공개 화면 접근 금지","내부 큐 전용"],["재인증","민감 변경 전 필수","연동 대기"]].map((item,index) => <article key={item[0]}><i>{String(index+1).padStart(2,"0")}</i><div><strong>{item[0]}</strong><small>{item[1]}</small></div><b>{item[2]}</b></article>)}</section>
+        <section><header><span>비밀정보 경계</span><b>비수탁형</b></header>{([["key","거래소 키","브라우저 저장 금지","KMS 연결 전 잠금"],["circleX","출금 권한","허용하지 않음","서버 차단"],["receipt","주문 실행","공개 화면 접근 금지","내부 큐 전용"],["fingerprint","재인증","민감 변경 전 필수","연동 대기"]] as [IconName,string,string,string][]).map(([icon,...item]) => <article key={item[0]}><i><Icon name={icon} size={16} /></i><div><strong>{item[0]}</strong><small>{item[1]}</small></div><b>{item[2]}</b></article>)}</section>
         <aside><header><span>감사 원장</span><b>해시 체인</b></header>{[["11:31:44","위험검사","주문 의도 통과","9d1c…4af2"],["11:28:09","승인 요청","전략 v12 제출","46ac…83b0"],["11:24:17","대사 예외","ETH 시각 불일치","203f…fa12"]].map((item) => <div key={item[0]}><time>{item[0]}</time><span><strong>{item[1]}</strong><small>{item[2]}</small></span><code>{item[3]}</code></div>)}</aside>
       </div>}
     </section>}
     <section className="bt-control-principle">
       <div><span>운영 원칙</span><h2>실거래는 API 키가 아니라<br />통제 충족으로 열립니다.</h2></div>
-      <ol><li><b>01</b>승인된 계정과 전략 버전</li><li><b>02</b>운용·리스크 담당자 독립 승인</li><li><b>03</b>모의·섀도 운용과 정상 대사</li><li><b>04</b>비상 중단과 재인증 검증</li></ol>
+      <ol>{["승인된 계정과 전략 버전","운용·리스크 담당자 독립 승인","모의·섀도 운용과 정상 대사","비상 중단과 재인증 검증"].map((item) => <li key={item}><b><Icon name="circleCheck" size={16} /></b>{item}</li>)}</ol>
     </section>
     <footer className="institutional-footer bt-public-footer"><Logo /><p>현재 공개 버전은 기관 워크플로를 검증하는 모의 환경이며 실제 거래·수탁·수익 보장을 제공하지 않습니다.</p><a href="/mobile">모바일 통제 앱 →</a></footer>
   </main>;
 }
 
-function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <main className="auth-screen"><div className="auth-accent" />{children}</main>;
+const SIGNUP_STEPS = ["약관 동의", "회원가입", "본인 인증", "투자 위험 고지"] as const;
+
+function AuthLayout({ children, step }: { children: React.ReactNode; step?: number }) {
+  return <main className="auth-screen auth-split">
+    <aside className="auth-brand-panel">
+      <Logo />
+      <div className="auth-brand-copy">
+        <span>기관용 가상자산 운용 인프라</span>
+        <h2>{step ? "4단계로 계정을 엽니다" : "승인된 계정으로 접속"}</h2>
+        <p>{step ? "약관 동의와 계정 생성, 본인 인증을 마친 뒤 투자 위험 고지를 직접 확인해야 콘솔이 열립니다." : "승인·위험 통제·감사 기록이 하나의 운영 흐름으로 연결됩니다. 실거래 권한은 통제 충족 전까지 잠겨 있습니다."}</p>
+        {step && <ol className="auth-steps" aria-label="가입 단계">{SIGNUP_STEPS.map((label, index) => <li key={label} className={index + 1 < step ? "done" : index + 1 === step ? "current" : ""} aria-current={index + 1 === step ? "step" : undefined}><i aria-hidden="true">{index + 1 < step && <Icon name="check" size={14} />}</i><span>{label}</span></li>)}</ol>}
+      </div>
+      <footer>현재 공개 버전은 실제 주문 권한이 없는 모의 운영 환경입니다.</footer>
+    </aside>
+    <section className="auth-form-area">
+      {step && <div className="auth-progress"><div aria-hidden="true">{SIGNUP_STEPS.map((label, index) => <i key={label} className={index + 1 < step ? "done" : index + 1 === step ? "current" : ""} />)}</div><p className="auth-step-label">{SIGNUP_STEPS[step - 1]}</p></div>}
+      {children}
+    </section>
+  </main>;
 }
 
 function Login({ go, notify, enterDemo }: { go: (screen: Screen) => void; notify: (message: string) => void; enterDemo: () => void }) {
@@ -634,7 +653,7 @@ function DevelopmentLogin({ go, notify, enterDemo }: { go: (screen: Screen) => v
 }
 
 function Terms({ go }: { go: (screen: Screen) => void }) {
-  const required = ["서비스 이용약관", "개인정보 처리방침", "투자 위험 고지", "전자금융거래 이용약관"];
+  const required = ["서비스 이용약관", "개인정보 처리방침", "전자금융거래 이용약관"];
   const optional = ["마케팅 정보 수신 동의", "제3자 정보 제공"];
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [detail, setDetail] = useState("");
@@ -643,34 +662,35 @@ function Terms({ go }: { go: (screen: Screen) => void }) {
     const next = ![...required, ...optional].every((item) => checked[item]);
     setChecked(Object.fromEntries([...required, ...optional].map((item) => [item, next])));
   };
-  return <AuthLayout><section className="terms-card">
+  return <AuthLayout step={1}><section className="terms-card">
     <Logo large /><h1>시작하기 전 약관에 동의해주세요</h1><p>BlockTrade는 사용자 자산을 직접 보관하지 않으며,<br />거래소 API를 통해 매매를 자동화합니다</p>
     <button type="button" className="agreement all" aria-pressed={[...required, ...optional].every((item) => checked[item])} onClick={toggleAll}><Check checked={[...required, ...optional].every((item) => checked[item])} /><strong>전체 동의 (선택 항목 포함)</strong></button>
     <div className="agreement-list">
-      {required.map((item) => <div className="agreement" key={item}><button type="button" className="agreement-check" aria-pressed={!!checked[item]} onClick={() => setChecked((state) => ({ ...state, [item]: !state[item] }))}><Check checked={!!checked[item]} /><span><strong>[필수] {item}</strong><small>{item.includes("위험") ? "필수 · 손실 가능성" : "필수"}</small></span></button><button type="button" className="agreement-view" onClick={() => setDetail(item)}>보기 ›</button></div>)}
+      {required.map((item) => <div className="agreement" key={item}><button type="button" className="agreement-check" aria-pressed={!!checked[item]} onClick={() => setChecked((state) => ({ ...state, [item]: !state[item] }))}><Check checked={!!checked[item]} /><span><strong>[필수] {item}</strong><small>필수</small></span></button><button type="button" className="agreement-view" onClick={() => setDetail(item)}>보기 ›</button></div>)}
       {optional.map((item) => <div className="agreement" key={item}><button type="button" className="agreement-check" aria-pressed={!!checked[item]} onClick={() => setChecked((state) => ({ ...state, [item]: !state[item] }))}><Check checked={!!checked[item]} /><span><strong>[선택] {item}</strong><small>선택</small></span></button><button type="button" className="agreement-view" onClick={() => setDetail(item)}>보기 ›</button></div>)}
     </div>
+    <p className="terms-risk-note">투자 위험 고지는 본인 인증을 마친 뒤 별도 단계에서 직접 확인합니다.</p>
     {detail && <div className="terms-detail" role="dialog" aria-label={`${detail} 상세`}><strong>{detail}</strong><p>현재 프로토타입용 요약입니다. 실제 출시 전 법률 검토를 거친 전문과 시행일을 연결해야 합니다.</p><button type="button" onClick={() => setDetail("")}>닫기</button></div>}
-    <button type="button" className="btn primary wide" disabled={!allRequired} onClick={() => go("risk")}>동의하고 시작하기 →</button>
+    <button type="button" className="btn primary wide" disabled={!allRequired} onClick={() => go("signup")}>동의하고 시작하기 →</button>
   </section></AuthLayout>;
 }
 
-function Check({ checked }: { checked: boolean }) { return <i aria-hidden="true" className={checked ? "check checked" : "check"} />; }
+function Check({ checked }: { checked: boolean }) { return <i aria-hidden="true" className={checked ? "check checked" : "check"}>{checked && <Icon name="check" size={13} />}</i>; }
 
 function RiskDisclosure({ go }: { go: (screen: Screen) => void }) {
   const [understood, setUnderstood] = useState(false);
   const [phrase, setPhrase] = useState("");
   const risks = [
-    ["01", "원금 손실 가능성", "가상자산은 가격 변동성이 매우 크며, 자동매매 결과 손실이 발생할 수 있어요."],
-    ["02", "알고리즘 한계", "백테스팅은 과거 데이터 기반 시뮬레이션이며 미래 수익률을 보장하지 않아요."],
-    ["03", "시스템 / 거래소 리스크", "API 응답 지연, 거래소 점검 등으로 의도치 않은 체결이 발생할 수 있어요."],
-  ];
-  return <AuthLayout><section className="risk-card">
-    <header><span>위험</span><div><b>반드시 읽어주세요</b><h1>투자 손실 가능성 고지</h1></div></header>
-    <div className="risk-list">{risks.map((risk) => <article key={risk[0]}><label>{risk[0]}</label><strong>{risk[1]}</strong><p>{risk[2]}</p></article>)}</div>
+    ["trendingUp", "원금 손실 가능성", "가상자산은 가격 변동성이 매우 크며, 자동매매 결과 손실이 발생할 수 있어요."],
+    ["activity", "알고리즘 한계", "백테스팅은 과거 데이터 기반 시뮬레이션이며 미래 수익률을 보장하지 않아요."],
+    ["alert", "시스템 / 거래소 리스크", "API 응답 지연, 거래소 점검 등으로 의도치 않은 체결이 발생할 수 있어요."],
+  ] as [IconName, string, string][];
+  return <AuthLayout step={4}><section className="risk-card">
+    <header><span><Icon name="alert" size={24} /></span><div><b>반드시 읽어주세요</b><h1>투자 손실 가능성 고지</h1></div></header>
+    <div className="risk-list">{risks.map(([icon, title, body]) => <article key={title}><i aria-hidden="true"><Icon name={icon} size={20} /></i><div><strong>{title}</strong><p>{body}</p></div></article>)}</div>
     <button type="button" className="understand" aria-pressed={understood} onClick={() => setUnderstood(!understood)}><Check checked={understood} /><span><strong>위 내용을 모두 이해했습니다</strong><small>(자필 입력 권장: ‘이해했습니다’)</small></span></button>
     <input className="risk-input" value={phrase} onChange={(e) => setPhrase(e.target.value)} placeholder="이해했습니다" aria-label="위험 고지 확인 문구" />
-    <button type="button" className="btn primary wide" disabled={!understood || phrase.trim() !== "이해했습니다"} onClick={() => go("signup")}>동의하고 계속</button>
+    <button type="button" className="btn primary wide" disabled={!understood || phrase.trim() !== "이해했습니다"} onClick={() => go("dashboard")}>동의하고 계속</button>
   </section></AuthLayout>;
 }
 
@@ -684,7 +704,7 @@ function Signup({ go, notify }: { go: (screen: Screen) => void; notify: (message
     setForm((state) => ({ ...state, password: "", confirm: "" }));
     go("verify");
   };
-  return <AuthLayout><form className="auth-card signup-card" onSubmit={submit}>
+  return <AuthLayout step={2}><form className="auth-card signup-card" onSubmit={submit}>
     <Logo large /><h1>계정 만들기</h1><p>무료로 시작하세요</p>
     <label>닉네임<input value={form.nickname} onChange={set("nickname")} placeholder="트레이더 닉네임" autoComplete="nickname" /></label>
     <label>이메일<input type="email" value={form.email} onChange={set("email")} placeholder="name@example.com" autoComplete="email" /></label>
@@ -712,11 +732,11 @@ function Verify({ go, notify }: { go: (screen: Screen) => void; notify: (message
     if (code !== "123456") { notify("인증번호를 확인해주세요"); return; }
     setCode("");
     notify("본인 인증을 완료했습니다");
-    go("dashboard");
+    go("risk");
   };
-  return <AuthLayout><section className="verify-card">
+  return <AuthLayout step={3}><section className="verify-card">
     <h1>본인 인증</h1><p>금융 서비스 이용을 위해 실명 확인이 필요합니다</p>
-    <div className="steps"><b>1 <span>기본 정보</span></b><i /><span>2　휴대폰 인증</span><i /><span>3　완료</span></div>
+    <div className="steps"><b>1 <span>기본 정보</span></b><i /><span>2　휴대폰 인증</span></div>
     <label>성명<input value={name} onChange={(event) => setName(event.target.value)} placeholder="이름 입력" autoComplete="name" /></label>
     <label>생년월일<input inputMode="numeric" value={birth} onChange={(event) => setBirth(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="생년월일 8자리" autoComplete="bday" /></label>
     <div className="secure-note"><b>보안</b><span><strong>민감정보 최소 수집</strong>이 화면은 주민등록번호를 받지 않습니다. 실서비스 KYC는 인증기관의 보안 화면에서 처리해야 합니다.</span></div>
@@ -767,11 +787,11 @@ function AppHeader({ screen, go, dark, setDark, profile }: { screen: Screen; go:
 
 function AppSidebar({ screen, go, openApi, unreadCount }: { screen: Screen; go: (screen: Screen) => void; openApi: (returnTo: Screen) => void; unreadCount: number }) {
   const navigate = (next: Screen) => next === "api" ? openApi("dashboard") : go(next);
-  return <aside className="app-sidebar institutional-sidebar"><label>투자 운용</label>{SIDEBAR_NAV.slice(0,5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "builder" ? "전략 빌더" : undefined} key={item.id} onClick={() => navigate(item.id)}><i>{item.icon}</i>{item.label}</button>)}<label>감독·관리</label>{SIDEBAR_NAV.slice(5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "notifications" ? "알림" : item.id === "settings" ? "설정" : undefined} key={item.id} onClick={() => navigate(item.id)}><i>{item.icon}</i>{item.label}{item.id === "notifications" && unreadCount > 0 && <em>{unreadCount}</em>}</button>)}</aside>;
+  return <aside className="app-sidebar institutional-sidebar"><label>투자 운용</label>{SIDEBAR_NAV.slice(0,5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "builder" ? "전략 빌더" : undefined} key={item.id} onClick={() => navigate(item.id)}><i><Icon name={item.icon} size={18} /></i>{item.label}</button>)}<label>감독·관리</label>{SIDEBAR_NAV.slice(5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "notifications" ? "알림" : item.id === "settings" ? "설정" : undefined} key={item.id} onClick={() => navigate(item.id)}><i><Icon name={item.icon} size={18} /></i>{item.label}{item.id === "notifications" && unreadCount > 0 && <em>{unreadCount}</em>}</button>)}</aside>;
 }
 
 function BottomNav({ screen, go }: { screen: Screen; go: (screen: Screen) => void }) {
-  return <nav className="bottom-nav" aria-label="태블릿 주요 메뉴">{SIDEBAR_NAV.slice(0,5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-current={screen === item.id ? "page" : undefined} key={item.id} onClick={() => go(item.id)}><i>{item.icon}</i><span>{item.label.replace("자산 ", "")}</span></button>)}</nav>;
+  return <nav className="bottom-nav" aria-label="태블릿 주요 메뉴">{SIDEBAR_NAV.slice(0,5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-current={screen === item.id ? "page" : undefined} key={item.id} onClick={() => go(item.id)}><i><Icon name={item.icon} size={20} /></i><span>{item.label.replace("자산 ", "")}</span></button>)}</nav>;
 }
 
 function PageTitle({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) {
@@ -792,11 +812,11 @@ function Dashboard({ go, connected, demoMode, enterDemo, openApi }: { go: (scree
     </section>
     <section className="institutional-status-strip"><span><i /> 모의 환경 정상</span><p>샘플 지연 218ms</p><p>모의 위험검사 활성</p><p>최근 샘플 대사 11:30</p><b>실거래 게이트 잠금</b></section>
     <section className="institutional-kpis">
-      <article><label>순자산가치 <em>PAPER</em></label><strong>₩4,823,100,000</strong><p className="positive">샘플 금일 +0.78%</p></article>
-      <article><label>일일 손익 <em>PAPER</em></label><strong className="positive">+₩37,420,000</strong><p>샘플 월 누계 +4.32%</p></article>
-      <article><label>총 / 순 익스포저 <em>PAPER</em></label><strong>62.4% <small>/ 18.7%</small></strong><p>모의 총 한도 80%</p></article>
-      <article><label>사용 가능 위험자본 <em>PAPER</em></label><strong>₩1,438,000,000</strong><p>샘플 순자산가치의 29.8%</p></article>
-      <article><label>현금성 자산 <em>PAPER</em></label><strong>₩1,246,000,000</strong><p>샘플 순자산가치의 25.8%</p></article>
+      <article><label>순자산가치 <em>PAPER</em></label><strong><CountUp value={48.23} digits={2} prefix="₩" suffix="억" /></strong><p className="positive">샘플 금일 +0.78%</p></article>
+      <article><label>일일 손익 <em>PAPER</em></label><strong className="positive"><CountUp value={3742} prefix="+₩" suffix="만" /></strong><p>샘플 월 누계 +4.32%</p></article>
+      <article><label>총 / 순 익스포저 <em>PAPER</em></label><strong><CountUp value={62.4} digits={1} suffix="%" /> <small>/ 18.7%</small></strong><p>모의 총 한도 80%</p></article>
+      <article><label>사용 가능 위험자본 <em>PAPER</em></label><strong><CountUp value={14.38} digits={2} prefix="₩" suffix="억" /></strong><p>샘플 순자산가치의 29.8%</p></article>
+      <article><label>현금성 자산 <em>PAPER</em></label><strong><CountUp value={12.46} digits={2} prefix="₩" suffix="억" /></strong><p>샘플 순자산가치의 25.8%</p></article>
       <article className="attention"><label>미해결 대사 <em>예시</em></label><strong>1건</strong><p>모의 SLA 18분 남음</p></article>
     </section>
     <section className="institutional-dashboard-grid">
@@ -1082,7 +1102,7 @@ function StrategyCopilot({ go, setBlocks, notify }: { go: (screen: Screen) => vo
       <aside className="panel copilot-draft">
         {!result ? <div className="copilot-empty"><span>AI</span><strong>아직 생성된 초안이 없습니다</strong><p>왼쪽에 조건, 실행 비중과 손실 한도를 함께 적어주세요.</p></div> : <>
           <header><div><span>{result.generationMode === "openai" ? "AI 구조화 초안" : "규칙 기반 안전 초안"}</span><h2>{result.draft.title}</h2><p>{result.draft.summary}</p></div><b className={`confidence ${result.draft.confidence}`}>신뢰도 {result.draft.confidence === "high" ? "높음" : result.draft.confidence === "medium" ? "중간" : "낮음"}</b></header>
-          <div className="copilot-blocks">{result.draft.blocks.map((block,index) => <article className={block.kind} key={block.id}><i>{String(index+1).padStart(2,"0")}</i><div><small>{block.kind === "condition" ? "조건" : block.kind === "action" ? "실행" : block.kind === "risk" ? "위험 통제" : "알림"}</small><strong>{block.label}</strong></div></article>)}</div>
+          <div className="copilot-blocks">{result.draft.blocks.map((block) => <article className={block.kind} key={block.id}><i><Icon name={block.kind === "condition" ? "activity" : block.kind === "action" ? "play" : block.kind === "risk" ? "shield" : "bell"} size={16} /></i><div><small>{block.kind === "condition" ? "조건" : block.kind === "action" ? "실행" : block.kind === "risk" ? "위험 통제" : "알림"}</small><strong>{block.label}</strong></div></article>)}</div>
           {result.draft.findings.length > 0 && <section className="copilot-findings"><h3>검토 항목</h3>{result.draft.findings.map((item) => <div className={item.severity} key={item.code}><b>{item.severity === "blocker" ? "차단" : item.severity === "warning" ? "확인" : "안내"}</b><span>{item.message}</span></div>)}</section>}
           {(result.draft.assumptions.length > 0 || result.draft.questions.length > 0) && <section className="copilot-assumptions"><h3>가정·확인 질문</h3>{[...result.draft.assumptions, ...result.draft.questions].map((item,index) => <p key={`${item}-${index}`}>{item}</p>)}</section>}
           <div className="copilot-provider-note"><span>{result.auditRecorded ? "감사 식별자 기록됨" : "감사 저장 확인 필요"}</span><p>{result.notice}</p></div>
@@ -1194,7 +1214,7 @@ function Builder({ go, blocks, setBlocks, notify }: { go: (screen: Screen) => vo
   };
   const editor = selectedBlock?.config
     ? <BlockConfigEditor key={selectedBlock.id} block={selectedBlock} update={updateSelectedConfig} close={() => setSelectedBlockId(null)} />
-    : <div className="inspector-empty"><span>01</span><strong>블록을 선택하세요</strong><p>조건 블록을 누르면 3%·5% 같은 임계값과 기준 시간, 실행 비중을 여기서 설정할 수 있습니다.</p></div>;
+    : <div className="inspector-empty"><span><Icon name="pointer" size={20} /></span><strong>블록을 선택하세요</strong><p>조건 블록을 누르면 3%·5% 같은 임계값과 기준 시간, 실행 비중을 여기서 설정할 수 있습니다.</p></div>;
   return <div className="product-page builder-page">
     <PageTitle title="블록 로직 생성기" subtitle="기준이 명확한 조건과 액션을 조립해 나만의 전략을 만드세요" action={<div className="inline-actions"><button type="button" className="btn secondary copilot-launch" onClick={() => go("copilot")}>AI로 전략 만들기</button><button type="button" className="btn secondary" onClick={() => go("library")}>전략 보관함</button><button type="button" className="btn secondary" onClick={() => go("market")}>전략 마켓</button><button type="button" className="btn primary" onClick={() => go("backtest")}>백테스팅 실행 →</button></div>} />
     <section className="builder-help-strip"><div><span>1</span><p><strong>블록 추가</strong>왼쪽 목록에서 조건·실행·알림을 고릅니다.</p></div><div><span>2</span><p><strong>블록 선택</strong>선택한 블록의 상세 설정이 열립니다.</p></div><div><span>3</span><p><strong>수치 입력</strong>3%·5%와 기준 시간·비중을 저장합니다.</p></div></section>
@@ -1525,7 +1545,7 @@ function Backtest({ go, setBlocks, notify }: { go: (screen: Screen) => void; set
     <section className="backtest-grid"><article className="panel chart-panel"><div className="panel-header"><div><h2>예시 자본금 변화 (90일)</h2><p>샘플 시작 ₩3,000,000 → ₩3,552,000</p></div><span>SAMPLE-90D · 합성 데이터</span></div><div className="line-chart" role="img" aria-label="감사나 투자 판단에 사용할 수 없는 예시 자본금 변화 차트"><div className="chart-grid" /><div className="area-shape" />{[24,31,28,42,38,48,44,59,54,68,64,78,73,88].map((point,index) => <i key={index} style={{ left:`${index*7.65}%`, bottom:`${point}%` }} />)}<strong>예시 ₩3,552,000</strong><small>샘플 시작　　　　　　　　　　　　　　　　　　　　　　　　　　　　90일</small></div><p className="chart-provenance">데이터 ID: SAMPLE-90D · 생성 규칙: 고정 UI fixture · 실제 캔들/호가/체결 미사용</p></article><article className="panel monthly-panel"><h2>예시 월별 성과</h2>{[["1월","+6.2%"],["2월","-3.1%"],["3월","+15.3%"]].map((item) => <div key={item[0]}><span>{item[0]}</span><i><b style={{width:item[1].startsWith("-")?"22%":"72%"}} /></i><strong className={item[1].startsWith("-")?"negative":"positive"}>{item[1]}</strong></div>)}<footer><strong>+18.4%</strong><span>+12.2%p<br /><small>가상 벤치마크 대비</small></span></footer></article></section>
     <section className="backtest-validation-grid">
       <article className="panel backtest-methodology"><div className="panel-header"><div><h2>검증 메타데이터</h2><p>결과를 재현하고 승인하려면 반드시 채워져야 합니다.</p></div><span>0 / 6 연결</span></div><dl><div><dt>전략 버전</dt><dd>미연결</dd></div><div><dt>데이터셋 ID</dt><dd>UI-SAMPLE</dd></div><div><dt>거래 비용</dt><dd>미적용</dd></div><div><dt>슬리피지</dt><dd>미적용</dd></div><div><dt>표본 외 구간</dt><dd>미지정</dd></div><div><dt>재현 실행 ID</dt><dd>미생성</dd></div></dl></article>
-      <article className="panel validation-next-steps"><div className="panel-header"><div><h2>다음 검증 작업</h2><p>운영 전환 전에 서버가 통과시켜야 하는 순서입니다.</p></div><span>필수</span></div><ol><li><b>01</b><span>전략 버전 고정과 콘텐츠 해시 생성</span></li><li><b>02</b><span>시세 원천·결측·이상치 품질 검사</span></li><li><b>03</b><span>수수료·슬리피지·체결 가능성 재계산</span></li><li><b>04</b><span>표본 외·워크포워드·스트레스 검증</span></li><li><b>05</b><span>독립 검토자 승인과 결과 봉인</span></li></ol></article>
+      <article className="panel validation-next-steps"><div className="panel-header"><div><h2>다음 검증 작업</h2><p>운영 전환 전에 서버가 통과시켜야 하는 순서입니다.</p></div><span>필수</span></div><ol>{["전략 버전 고정과 콘텐츠 해시 생성","시세 원천·결측·이상치 품질 검사","수수료·슬리피지·체결 가능성 재계산","표본 외·워크포워드·스트레스 검증","독립 검토자 승인과 결과 봉인"].map((item) => <li key={item}><b><Icon name="circleCheck" size={16} /></b><span>{item}</span></li>)}</ol></article>
     </section>
     <section className="panel trades sample-trades"><div className="panel-header"><div><h2>예시 체결 내역 (최근 4건)</h2><p>실제 거래소 체결이 아닌 고정 UI 샘플입니다.</p></div><span>PAPER</span></div>{[["03/14","ETH +2.5% 조건","₩3,182,000","+₩48,200","매도"],["03/11","ETH +2.5% 조건","₩2,950,000","+₩31,500","매도"],["03/09","리밸런싱 매수","₩2,880,000","—","매수"],["03/06","ETH +2.5% 조건","₩2,920,000","-₩12,300","매도"]].map((row) => <div key={row[0]}><time data-label="일자">{row[0]}</time><span data-label="신호">{row[1]}</span><b data-label="예시 자산">{row[2]}</b><em data-label="예시 손익" className={row[3].startsWith("-")?"negative":"positive"}>{row[3]}</em><i data-label="구분">{row[4]}</i></div>)}</section>
     <div className="weakness"><div><strong>이 전략의 약점</strong><p>하락장(`24.10 ~ `25.02) 구간에서 -8% 손실 · 리스크 회피형 손절 5% 추가 권장</p></div><div className="weakness-actions"><button type="button" onClick={() => go("postmortem")}>실패 구간 분석</button><button type="button" onClick={addRiskBlock}>손절 블록 적용 →</button></div></div>
