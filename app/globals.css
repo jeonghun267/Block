@@ -13,6 +13,8 @@
 .agreement-check>span{display:flex;flex-direction:column;gap:3px;flex:1}
 .agreement-view{border:0;background:transparent;color:var(--gray-500);font-size:10px;white-space:nowrap;padding:10px 7px}
 .agreement-list{margin-bottom:12px}
+.auth-card h1,.terms-card h1,.risk-card h1,.verify-card h1{word-break:keep-all}
+.terms-risk-note{margin:-6px 0 14px;font-size:10px;line-height:1.5;color:var(--gray-500)}
 .terms-detail{position:relative;border:1px solid var(--green);background:var(--green-subtle);border-radius:9px;padding:12px 56px 12px 14px;margin:0 0 12px}
 .terms-detail strong{font-size:11px}
 .terms-detail p{font-size:9px;color:var(--gray-500);line-height:1.5;margin:4px 0 0}

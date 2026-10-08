@@ -585,8 +585,25 @@ function Landing({ go, connected }: { go: (screen: Screen) => void; connected: b
   </main>;
 }
 
-function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <main className="auth-screen"><div className="auth-accent" />{children}</main>;
+const SIGNUP_STEPS = ["약관 동의", "회원가입", "본인 인증", "투자 위험 고지"] as const;
+
+function AuthLayout({ children, step }: { children: React.ReactNode; step?: number }) {
+  return <main className="auth-screen auth-split">
+    <aside className="auth-brand-panel">
+      <Logo />
+      <div className="auth-brand-copy">
+        <span>기관용 가상자산 운용 인프라</span>
+        <h2>{step ? "4단계로 계정을 엽니다" : "승인된 계정으로 접속"}</h2>
+        <p>{step ? "약관 동의와 계정 생성, 본인 인증을 마친 뒤 투자 위험 고지를 직접 확인해야 콘솔이 열립니다." : "승인·위험 통제·감사 기록이 하나의 운영 흐름으로 연결됩니다. 실거래 권한은 통제 충족 전까지 잠겨 있습니다."}</p>
+        {step && <ol className="auth-steps" aria-label="가입 단계">{SIGNUP_STEPS.map((label, index) => <li key={label} className={index + 1 < step ? "done" : index + 1 === step ? "current" : ""} aria-current={index + 1 === step ? "step" : undefined}><b>{String(index + 1).padStart(2, "0")}</b><span>{label}</span></li>)}</ol>}
+      </div>
+      <footer>현재 공개 버전은 실제 주문 권한이 없는 모의 운영 환경입니다.</footer>
+    </aside>
+    <section className="auth-form-area">
+      {step && <p className="auth-step-label">STEP {String(step).padStart(2, "0")} / 04 · {SIGNUP_STEPS[step - 1]}</p>}
+      {children}
+    </section>
+  </main>;
 }
 
 function Login({ go, notify, enterDemo }: { go: (screen: Screen) => void; notify: (message: string) => void; enterDemo: () => void }) {
@@ -634,7 +651,7 @@ function DevelopmentLogin({ go, notify, enterDemo }: { go: (screen: Screen) => v
 }
 
 function Terms({ go }: { go: (screen: Screen) => void }) {
-  const required = ["서비스 이용약관", "개인정보 처리방침", "투자 위험 고지", "전자금융거래 이용약관"];
+  const required = ["서비스 이용약관", "개인정보 처리방침", "전자금융거래 이용약관"];
   const optional = ["마케팅 정보 수신 동의", "제3자 정보 제공"];
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [detail, setDetail] = useState("");
@@ -643,15 +660,16 @@ function Terms({ go }: { go: (screen: Screen) => void }) {
     const next = ![...required, ...optional].every((item) => checked[item]);
     setChecked(Object.fromEntries([...required, ...optional].map((item) => [item, next])));
   };
-  return <AuthLayout><section className="terms-card">
+  return <AuthLayout step={1}><section className="terms-card">
     <Logo large /><h1>시작하기 전 약관에 동의해주세요</h1><p>BlockTrade는 사용자 자산을 직접 보관하지 않으며,<br />거래소 API를 통해 매매를 자동화합니다</p>
     <button type="button" className="agreement all" aria-pressed={[...required, ...optional].every((item) => checked[item])} onClick={toggleAll}><Check checked={[...required, ...optional].every((item) => checked[item])} /><strong>전체 동의 (선택 항목 포함)</strong></button>
     <div className="agreement-list">
-      {required.map((item) => <div className="agreement" key={item}><button type="button" className="agreement-check" aria-pressed={!!checked[item]} onClick={() => setChecked((state) => ({ ...state, [item]: !state[item] }))}><Check checked={!!checked[item]} /><span><strong>[필수] {item}</strong><small>{item.includes("위험") ? "필수 · 손실 가능성" : "필수"}</small></span></button><button type="button" className="agreement-view" onClick={() => setDetail(item)}>보기 ›</button></div>)}
+      {required.map((item) => <div className="agreement" key={item}><button type="button" className="agreement-check" aria-pressed={!!checked[item]} onClick={() => setChecked((state) => ({ ...state, [item]: !state[item] }))}><Check checked={!!checked[item]} /><span><strong>[필수] {item}</strong><small>필수</small></span></button><button type="button" className="agreement-view" onClick={() => setDetail(item)}>보기 ›</button></div>)}
       {optional.map((item) => <div className="agreement" key={item}><button type="button" className="agreement-check" aria-pressed={!!checked[item]} onClick={() => setChecked((state) => ({ ...state, [item]: !state[item] }))}><Check checked={!!checked[item]} /><span><strong>[선택] {item}</strong><small>선택</small></span></button><button type="button" className="agreement-view" onClick={() => setDetail(item)}>보기 ›</button></div>)}
     </div>
+    <p className="terms-risk-note">투자 위험 고지는 본인 인증을 마친 뒤 별도 단계에서 직접 확인합니다.</p>
     {detail && <div className="terms-detail" role="dialog" aria-label={`${detail} 상세`}><strong>{detail}</strong><p>현재 프로토타입용 요약입니다. 실제 출시 전 법률 검토를 거친 전문과 시행일을 연결해야 합니다.</p><button type="button" onClick={() => setDetail("")}>닫기</button></div>}
-    <button type="button" className="btn primary wide" disabled={!allRequired} onClick={() => go("risk")}>동의하고 시작하기 →</button>
+    <button type="button" className="btn primary wide" disabled={!allRequired} onClick={() => go("signup")}>동의하고 시작하기 →</button>
   </section></AuthLayout>;
 }
 
@@ -665,12 +683,12 @@ function RiskDisclosure({ go }: { go: (screen: Screen) => void }) {
     ["02", "알고리즘 한계", "백테스팅은 과거 데이터 기반 시뮬레이션이며 미래 수익률을 보장하지 않아요."],
     ["03", "시스템 / 거래소 리스크", "API 응답 지연, 거래소 점검 등으로 의도치 않은 체결이 발생할 수 있어요."],
   ];
-  return <AuthLayout><section className="risk-card">
+  return <AuthLayout step={4}><section className="risk-card">
     <header><span>위험</span><div><b>반드시 읽어주세요</b><h1>투자 손실 가능성 고지</h1></div></header>
     <div className="risk-list">{risks.map((risk) => <article key={risk[0]}><label>{risk[0]}</label><strong>{risk[1]}</strong><p>{risk[2]}</p></article>)}</div>
     <button type="button" className="understand" aria-pressed={understood} onClick={() => setUnderstood(!understood)}><Check checked={understood} /><span><strong>위 내용을 모두 이해했습니다</strong><small>(자필 입력 권장: ‘이해했습니다’)</small></span></button>
     <input className="risk-input" value={phrase} onChange={(e) => setPhrase(e.target.value)} placeholder="이해했습니다" aria-label="위험 고지 확인 문구" />
-    <button type="button" className="btn primary wide" disabled={!understood || phrase.trim() !== "이해했습니다"} onClick={() => go("signup")}>동의하고 계속</button>
+    <button type="button" className="btn primary wide" disabled={!understood || phrase.trim() !== "이해했습니다"} onClick={() => go("dashboard")}>동의하고 계속</button>
   </section></AuthLayout>;
 }
 
@@ -684,7 +702,7 @@ function Signup({ go, notify }: { go: (screen: Screen) => void; notify: (message
     setForm((state) => ({ ...state, password: "", confirm: "" }));
     go("verify");
   };
-  return <AuthLayout><form className="auth-card signup-card" onSubmit={submit}>
+  return <AuthLayout step={2}><form className="auth-card signup-card" onSubmit={submit}>
     <Logo large /><h1>계정 만들기</h1><p>무료로 시작하세요</p>
     <label>닉네임<input value={form.nickname} onChange={set("nickname")} placeholder="트레이더 닉네임" autoComplete="nickname" /></label>
     <label>이메일<input type="email" value={form.email} onChange={set("email")} placeholder="name@example.com" autoComplete="email" /></label>
@@ -712,11 +730,11 @@ function Verify({ go, notify }: { go: (screen: Screen) => void; notify: (message
     if (code !== "123456") { notify("인증번호를 확인해주세요"); return; }
     setCode("");
     notify("본인 인증을 완료했습니다");
-    go("dashboard");
+    go("risk");
   };
-  return <AuthLayout><section className="verify-card">
+  return <AuthLayout step={3}><section className="verify-card">
     <h1>본인 인증</h1><p>금융 서비스 이용을 위해 실명 확인이 필요합니다</p>
-    <div className="steps"><b>1 <span>기본 정보</span></b><i /><span>2　휴대폰 인증</span><i /><span>3　완료</span></div>
+    <div className="steps"><b>1 <span>기본 정보</span></b><i /><span>2　휴대폰 인증</span></div>
     <label>성명<input value={name} onChange={(event) => setName(event.target.value)} placeholder="이름 입력" autoComplete="name" /></label>
     <label>생년월일<input inputMode="numeric" value={birth} onChange={(event) => setBirth(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="생년월일 8자리" autoComplete="bday" /></label>
     <div className="secure-note"><b>보안</b><span><strong>민감정보 최소 수집</strong>이 화면은 주민등록번호를 받지 않습니다. 실서비스 KYC는 인증기관의 보안 화면에서 처리해야 합니다.</span></div>

@@ -1734,3 +1734,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
     font-size:12px;
   }
 }
+.auth-screen.auth-split{display:grid;grid-template-columns:minmax(360px,32%) minmax(0,1fr);place-items:stretch;align-items:stretch;padding:0;background:var(--bt-canvas)}
+.auth-brand-panel{min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;gap:32px;padding:40px 44px;background:#080b11;color:#f8fafc}
+.auth-brand-panel .logo>span{background:#f4f6f8;color:#080b11}.auth-brand-panel .logo>strong{color:#f8fafc}
+.auth-brand-copy>span{display:block;margin-bottom:14px;color:#8b95a7;font-size:11px;font-weight:700;letter-spacing:.12em}
+.auth-brand-copy h2{margin:0 0 12px;font-size:30px;line-height:1.3;letter-spacing:-.02em;word-break:keep-all}
+.auth-brand-copy p{max-width:360px;margin:0;color:#9aa4b2;font-size:13px;line-height:1.7;word-break:keep-all}
+.auth-steps{list-style:none;margin:32px 0 0;padding:0}
+.auth-steps li{display:grid;grid-template-columns:40px 1fr auto;align-items:center;min-height:52px;border-top:1px solid #1f2937;color:#6b7686;font-size:14px}
+.auth-steps li:last-child{border-bottom:1px solid #1f2937}
+.auth-steps li b{font-size:11px;font-variant-numeric:tabular-nums}
+.auth-steps li.done{color:#c7ced8}.auth-steps li.done::after{content:"완료";color:#8b95a7;font-size:10px}
+.auth-steps li.current{color:#fff;font-weight:700}.auth-steps li.current b{color:#60a5fa}.auth-steps li.current::after{content:"진행 중";color:#60a5fa;font-size:10px}
+.auth-brand-panel>footer{color:#6b7686;font-size:11px;line-height:1.6}
+.auth-form-area{min-width:0;display:flex;flex-direction:column;align-items:flex-start;padding:96px 80px 64px}
+.auth-form-area>.auth-card,.auth-form-area>.terms-card,.auth-form-area>.risk-card,.auth-form-area>.verify-card{margin:0}
+.auth-split .auth-card>.logo.large,.auth-split .terms-card>.logo.large{display:none}
+.auth-split .auth-card h1,.auth-split .terms-card h1,.auth-split .auth-card>p,.auth-split .terms-card>p{text-align:left}
+.auth-step-label{margin:0 0 14px;color:#64748b;font-size:12px;font-weight:700;letter-spacing:.04em}
+@media (max-width:900px){.auth-screen.auth-split{grid-template-columns:1fr}.auth-brand-panel{min-height:0;flex-direction:row;align-items:center;padding:16px 20px}.auth-brand-copy,.auth-brand-panel>footer{display:none}.auth-form-area{align-items:stretch;padding:24px 16px 40px}}

@@ -1,0 +1,64 @@
+.splash{position:relative;min-height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#080b11;color:#f8fafc}
+.splashMark{width:76px;height:76px;border-radius:20px;background:#f4f6f8;display:grid;place-items:center;animation:splashIn .6s ease both}
+.splashMark span{color:#080b11;font-size:26px;font-weight:900;letter-spacing:-.02em}
+.splashName{margin-top:22px;font-size:24px;font-weight:800;letter-spacing:-.02em;animation:splashIn .6s .12s ease both}
+.splashTag{margin-top:8px;color:#8b95a7;font-size:11px;letter-spacing:.18em;animation:splashIn .6s .2s ease both}
+.splashFooter{position:absolute;left:0;right:0;bottom:calc(48px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:14px;color:#6b7686;font-size:10px}
+.splashFooter i{width:120px;height:2px;border-radius:2px;background:#1f2937;overflow:hidden}
+.splashFooter b{display:block;width:100%;height:100%;background:#f4f6f8;transform-origin:left;animation:splashLoad 1.2s ease-out both}
+@keyframes splashIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes splashLoad{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){.splashMark,.splashName,.splashTag,.splashFooter b{animation:none}}
+
+.authShell{min-height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;background:#f4f6f8;color:#111827;box-shadow:0 0 60px rgba(15,23,42,.08)}
+.authShell button{font-family:inherit;-webkit-tap-highlight-color:transparent;word-break:keep-all}
+.appBar{position:sticky;top:0;z-index:20;height:56px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:0 10px;background:#0b0d10;color:#fff;border-bottom:1px solid #282c32}
+.appBar strong{text-align:center;font-size:14px;font-weight:700}
+.back{width:44px;height:44px;border:0;background:transparent;color:#fff;font-size:28px;line-height:1}
+.barMark{justify-self:center;width:28px;height:28px;border-radius:5px;background:#f1f2f3;color:#0b0d10;display:grid;place-items:center;font-size:10px;font-weight:900}
+.stepCount{justify-self:center;color:#9ca1a9;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.progress{list-style:none;margin:0;padding:12px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#fff;border-bottom:1px solid #e5e7eb}
+.progress li{display:flex;flex-direction:column;gap:6px;min-width:0;color:#9ca3af;font-size:9px;white-space:nowrap}
+.progress i{height:3px;border-radius:2px;background:#e5e7eb}
+.progress .done{color:#475569}.progress .done i{background:#111827}
+.progress .current{color:#111827;font-weight:700}.progress .current i{background:#2563eb}
+.authBody{flex:1;padding:28px 20px 24px}
+.authBody h1{margin:0 0 8px;font-size:24px;letter-spacing:-.02em;word-break:keep-all}
+.lead{margin:0 0 24px;color:#64748b;font-size:13px;line-height:1.6;word-break:keep-all}
+.field{display:block;margin-bottom:16px;color:#374151;font-size:12px;font-weight:600}
+.fieldLabel{margin-bottom:8px;color:#374151;font-size:12px;font-weight:600}
+.field input{display:block;width:100%;height:50px;margin-top:8px;padding:0 14px;border:1px solid #d8dee8;border-radius:8px;background:#fff;color:#111827;font-size:15px}
+.field input::placeholder{color:#9ca3af}
+.field input:focus{outline:2px solid rgba(37,99,235,.3);border-color:#2563eb}
+.hint{display:block;margin-top:6px;color:#9ca3af;font-size:11px;font-weight:400}
+.textAction{border:0;background:transparent;color:#475569;font-size:12px;padding:4px 0}
+.ctaBar{position:sticky;bottom:0;display:grid;gap:10px;padding:12px 20px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(rgba(244,246,248,0),#f4f6f8 24%)}
+.primary{height:52px;border:0;border-radius:8px;background:#111827;color:#fff;font-size:15px;font-weight:700}
+.primary:disabled{opacity:.4}
+.secondary{height:48px;border:1px solid #d8dee8;border-radius:8px;background:#fff;color:#111827;font-size:13px;font-weight:600}
+.secondary:disabled{color:#9ca3af}
+.link{border:0;background:transparent;color:#64748b;font-size:13px;padding:6px}
+.link b{color:#111827}
+.box{width:22px;height:22px;flex:0 0 auto;display:grid;place-items:center;border:1.5px solid #c5ccd6;border-radius:5px;color:#fff;font-size:12px;font-style:normal}
+.box.on{border-color:#2563eb;background:#2563eb}
+.agreeAll{width:100%;min-height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;border:1px solid #d8dee8;border-radius:10px;background:#fff;color:#111827;font-size:15px;font-weight:700;text-align:left}
+.agreeList{margin-top:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;overflow:hidden}
+.agreeList button{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;padding:0 16px;border:0;border-top:1px solid #f1f3f5;background:transparent;color:#111827;font-size:13px;text-align:left}
+.agreeList button:first-child{border-top:0}
+.agreeList span{flex:1}
+.agreeList em{color:#9ca3af;font-size:11px;font-style:normal}
+.note{margin:14px 2px 0;color:#64748b;font-size:12px;line-height:1.6;word-break:keep-all}
+.secure{display:flex;gap:10px;margin-bottom:16px;padding:12px 14px;border-radius:8px;background:#eaeef4;color:#475569;font-size:11px;line-height:1.55}
+.secure b{color:#111827;white-space:nowrap}
+.carriers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.carriers button{height:44px;border:1px solid #d8dee8;border-radius:8px;background:#fff;color:#374151;font-size:13px}
+.carriers .on{border-color:#2563eb;background:#eff6ff;color:#1d4ed8;font-weight:700}
+.inline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.inline>button{height:50px;margin-bottom:16px;padding:0 14px;border:1px solid #111827;border-radius:8px;background:#fff;color:#111827;font-size:13px;font-weight:700;white-space:nowrap}
+.inline>button:disabled{border-color:#d8dee8;color:#9ca3af}
+.riskList{display:grid;gap:10px;margin-bottom:16px}
+.riskList article{padding:14px 16px;border:1px solid #e5e7eb;border-left:3px solid #b45309;border-radius:8px;background:#fff}
+.riskList small{color:#b45309;font-size:10px;font-weight:800}
+.riskList strong{display:block;margin:4px 0;font-size:14px}
+.riskList p{margin:0;color:#64748b;font-size:12px;line-height:1.55}
+.riskList+.agreeAll{margin-bottom:16px}

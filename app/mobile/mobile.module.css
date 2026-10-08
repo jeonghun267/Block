@@ -25,3 +25,4 @@
 .activeOrderCard>span,.backButton,.mobilePanel>header button,.textButton,.profileCard a{color:#202329}.buyBadge{background:#eceeef;color:#343840}.filterTabs .filterActive,.fullPrimaryButton{background:#202329}.orderTimeline .timelineComplete i{background:#10b981}
 .installCard{border-color:#cfd3d8;background:#f1f2f3}.installCard>i{background:#202329}.installCard>b{color:#202329}.profileCard>i{background:#eceeef;color:#343840}
 .bottomNav{background:#0b0d10;border-color:#282c32}.bottomNav button{color:#858b94}.bottomNav .activeTab{color:#fff;background:#25282e}.bottomNav .activeTab:after{background:#f1f2f3}.toast>span{background:#343840;color:#fff}
+.logoutButton{width:100%;min-height:48px;margin-top:12px;border:1px solid #d9dde2;border-radius:7px;background:#fff;color:#374151;font-size:13px;font-weight:700}

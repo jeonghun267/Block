@@ -11,6 +11,7 @@ import {
 } from "../../lib/operations";
 import { loadOperationSnapshot, sendOperationCommand } from "../../lib/client/operations-api";
 import styles from "./mobile.module.css";
+import { AppOnboarding, type AppStage } from "./onboarding";
 
 type MobileTab = "home" | "operate" | "orders" | "alerts" | "settings";
 type OrderFilter = "all" | "open" | "completed" | "failed";
@@ -37,6 +38,19 @@ const ORDER_STATUS_LABEL: Record<OrderRunStatus, string> = {
 };
 
 const OPEN_ORDER_STATUS: OrderRunStatus[] = ["queued", "submitted", "partially_filled"];
+const SPLASH_MS = 1200;
+const SESSION_KEY = "blocktrade.app.session";
+
+function readSession() {
+  try { return window.localStorage.getItem(SESSION_KEY) === "1"; } catch { return false; }
+}
+
+function writeSession(active: boolean) {
+  try {
+    if (active) window.localStorage.setItem(SESSION_KEY, "1");
+    else window.localStorage.removeItem(SESSION_KEY);
+  } catch { /* storage unavailable: the session lasts for this visit only */ }
+}
 
 function money(value: number) {
   const sign = value > 0 ? "+" : value < 0 ? "-" : "";
@@ -51,6 +65,7 @@ function statusClass(status: OrderRunStatus) {
 }
 
 export default function MobileApp() {
+  const [stage, setStage] = useState<AppStage | "app">("splash");
   const [tab, setTab] = useState<MobileTab>("home");
   const [snapshot, setSnapshot] = useState<OperationSnapshot>(DEFAULT_OPERATION_SNAPSHOT);
   const [syncState, setSyncState] = useState<"loading" | "synced" | "error">("loading");
@@ -78,6 +93,11 @@ export default function MobileApp() {
       });
     return () => controller.abort();
   }, [reloadToken]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setStage(readSession() ? "app" : "login"), SPLASH_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
@@ -137,10 +157,32 @@ export default function MobileApp() {
     setInstallPrompt(null);
   };
 
+  const goStage = (next: AppStage) => {
+    setStage(next);
+    window.scrollTo({ top: 0 });
+  };
+
+  const completeOnboarding = (message: string) => {
+    writeSession(true);
+    setTab("home");
+    setSelectedOrderId("");
+    setStage("app");
+    showToast(message);
+  };
+
+  const logout = () => {
+    writeSession(false);
+    setStage("login");
+  };
+
   const selectedOrder = snapshot.orders.find((order) => order.id === selectedOrderId) ?? null;
   const runningCount = snapshot.strategies.filter((strategy) => strategy.status === "running").length;
   const openOrderCount = snapshot.orders.filter((order) => OPEN_ORDER_STATUS.includes(order.status)).length;
   const pnlToday = snapshot.strategies.reduce((sum, strategy) => sum + strategy.pnlToday, 0);
+
+  if (stage !== "app") {
+    return <><AppOnboarding stage={stage} go={goStage} complete={completeOnboarding} notify={showToast} />{toast && <div className={styles.toast} role="status"><span>알림</span>{toast}</div>}</>;
+  }
 
   return <main className={`${styles.appShell} mobile-institutional`}>
     <header className={`${styles.appHeader} mobile-institutional-header`}>
@@ -153,7 +195,7 @@ export default function MobileApp() {
         {tab === "operate" && <OperateTab snapshot={snapshot} busy={busy} onCommand={perform} openOrder={openOrder} openEmergency={() => setEmergencyOpen(true)} />}
         {tab === "orders" && (selectedOrder ? <OrderDetail order={selectedOrder} busy={busy} goBack={() => setSelectedOrderId("")} onCommand={perform} /> : <OrdersTab orders={snapshot.orders} filter={orderFilter} setFilter={setOrderFilter} openOrder={openOrder} />)}
         {tab === "alerts" && <AlertsTab snapshot={snapshot} unread={unread} markRead={() => setUnread(0)} openOrder={openOrder} notify={showToast} />}
-        {tab === "settings" && <SettingsTab installApp={installApp} />}
+        {tab === "settings" && <SettingsTab installApp={installApp} logout={logout} />}
       </>}
     </section>
     <nav className={styles.bottomNav} aria-label="앱 주요 메뉴">
@@ -202,6 +244,6 @@ function AlertsTab({ snapshot, unread, markRead, openOrder, notify }: { snapshot
   return <><SectionTitle title="알림" description="주문·전략·보안 상태를 알려드립니다" action={unread > 0 ? <button type="button" className={styles.textButton} onClick={markRead}>모두 읽음</button> : undefined} /><section className={styles.alertList}>{snapshot.events.map((event, index) => <button type="button" key={event.id} className={index < unread ? styles.unreadAlert : ""} onClick={() => { if (event.orderId) openOrder(event.orderId); else notify("알림 내용을 확인했습니다"); }}><i className={event.severity === "critical" ? styles.criticalAlert : event.severity === "warning" ? styles.warningAlert : styles.normalAlert}>{event.severity === "critical" ? "중단" : event.severity === "warning" ? "주의" : "정상"}</i><div><span><strong>{event.eventType === "emergency_stop" ? "긴급 중단" : event.eventType.includes("order") ? "주문 상태" : "전략 알림"}</strong><time>{event.createdAt}</time></span><p>{event.message}</p>{event.orderId && <small>주문 상세 보기 ›</small>}</div></button>)}</section></>;
 }
 
-function SettingsTab({ installApp }: { installApp: () => Promise<void> }) {
-  return <><SectionTitle title="설정" description="설치형 웹앱의 제공 범위와 연결 상태를 확인합니다" /><section className={styles.profileCard}><i>정</i><div><strong>정훈</strong><span>인증 없는 데모 프로필</span></div><Link href="/">웹 서비스 열기</Link></section><section className={styles.settingGroup}><h2>앱 기능 준비 상태</h2><button type="button" disabled aria-disabled="true"><span><strong>푸시 알림</strong><small>실제 앱 알림 연동 후 제공</small></span><i className={styles.switch}><b /></i></button><button type="button" disabled aria-disabled="true"><span><strong>생체 인증 잠금</strong><small>네이티브 인증 연동 후 제공</small></span><i className={styles.switch}><b /></i></button></section><section className={styles.settingGroup}><h2>연결 상태</h2><article><span><strong>운영 모드</strong><small>실제 주문이 없는 안전한 환경</small></span><b className={styles.paperBadge}>모의 운영</b></article><article><span><strong>거래소 연결</strong><small>현재 사용자별 키 저장소 미연결</small></span><b className={styles.redText}>미연결</b></article></section><button type="button" className={styles.installCard} onClick={installApp}><i>BT</i><span><strong>BlockTrade 설치형 웹앱</strong><small>홈 화면에서 앱 형태로 실행하세요</small></span><b>설치 ›</b></button><p className={styles.securityNote}>현재 화면은 네이티브 iOS·Android 앱이 아닌 설치형 웹앱입니다. 민감한 API 키와 비밀번호는 저장하지 않습니다.</p></>;
+function SettingsTab({ installApp, logout }: { installApp: () => Promise<void>; logout: () => void }) {
+  return <><SectionTitle title="설정" description="설치형 웹앱의 제공 범위와 연결 상태를 확인합니다" /><section className={styles.profileCard}><i>정</i><div><strong>정훈</strong><span>인증 없는 데모 프로필</span></div><Link href="/">웹 서비스 열기</Link></section><section className={styles.settingGroup}><h2>앱 기능 준비 상태</h2><button type="button" disabled aria-disabled="true"><span><strong>푸시 알림</strong><small>실제 앱 알림 연동 후 제공</small></span><i className={styles.switch}><b /></i></button><button type="button" disabled aria-disabled="true"><span><strong>생체 인증 잠금</strong><small>네이티브 인증 연동 후 제공</small></span><i className={styles.switch}><b /></i></button></section><section className={styles.settingGroup}><h2>연결 상태</h2><article><span><strong>운영 모드</strong><small>실제 주문이 없는 안전한 환경</small></span><b className={styles.paperBadge}>모의 운영</b></article><article><span><strong>거래소 연결</strong><small>현재 사용자별 키 저장소 미연결</small></span><b className={styles.redText}>미연결</b></article></section><button type="button" className={styles.installCard} onClick={installApp}><i>BT</i><span><strong>BlockTrade 설치형 웹앱</strong><small>홈 화면에서 앱 형태로 실행하세요</small></span><b>설치 ›</b></button><button type="button" className={styles.logoutButton} onClick={logout}>앱 로그아웃</button><p className={styles.securityNote}>현재 화면은 네이티브 iOS·Android 앱이 아닌 설치형 웹앱입니다. 민감한 API 키와 비밀번호는 저장하지 않습니다.</p></>;
 }
