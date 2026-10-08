@@ -1,0 +1,207 @@
+/*
+ * BlockTrade console design layer (loaded last).
+ * One language with the installed app: quiet surfaces, glass navigation,
+ * cobalt for action and selection only, generous type with tabular figures.
+ * Tokens first, then chrome (header, sidebar), then content components.
+ */
+
+.product{
+  --bg:#f5f6f8;--surface:#fff;--surface-2:#f7f8fa;--surface-3:#eef1f5;
+  --text:#0f172a;--text-2:#334155;--muted:#64748b;--faint:#94a3b8;
+  --line:#e6e9ef;--line-strong:#d5dbe4;
+  --cobalt:#2563eb;--cobalt-hover:#1d4ed8;--cobalt-soft:#eef4ff;--cobalt-ink:#1d4ed8;
+  --emerald:#047857;--emerald-soft:#e8f6ef;--amber:#b45309;--amber-soft:#fff5e6;--red:#c81e1e;--red-soft:#fdeeee;
+  --r-xl:20px;--r-lg:16px;--r-md:12px;--r-sm:10px;--r-pill:999px;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.04),0 1px 1px rgba(15,23,42,.02);
+  --shadow-md:0 1px 2px rgba(15,23,42,.04),0 8px 24px rgba(15,23,42,.06);
+  --shadow-lg:0 24px 64px rgba(15,23,42,.18);
+  --glass:rgba(255,255,255,.72);--glass-line:rgba(15,23,42,.07);
+  --ease:cubic-bezier(.2,0,0,1);
+  --font-ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Pretendard Variable",Pretendard,"Noto Sans KR","Malgun Gothic",var(--font-geist-sans),system-ui,sans-serif;
+  --sidebar-w:232px;--header-h:60px;
+  background:var(--bg);color:var(--text);font-family:var(--font-ui);letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"tnum" 1
+}
+.product.dark{
+  --bg:#0a0d13;--surface:#121722;--surface-2:#161c29;--surface-3:#1c2333;
+  --text:#eef2f8;--text-2:#cbd5e1;--muted:#94a3b8;--faint:#64748b;
+  --line:#222a39;--line-strong:#2d3748;
+  --cobalt:#3b82f6;--cobalt-hover:#60a5fa;--cobalt-soft:rgba(59,130,246,.16);--cobalt-ink:#93c5fd;
+  --emerald:#34d399;--emerald-soft:rgba(52,211,153,.12);--amber:#fbbf24;--amber-soft:rgba(251,191,36,.12);--red:#f87171;--red-soft:rgba(248,113,113,.12);
+  --shadow-sm:none;--shadow-md:0 1px 0 rgba(255,255,255,.03) inset;--shadow-lg:0 24px 64px rgba(0,0,0,.5);
+  --glass:rgba(10,13,19,.72);--glass-line:rgba(255,255,255,.06);
+  background:var(--bg);color:var(--text)
+}
+.product :focus-visible{outline:3px solid rgba(37,99,235,.35);outline-offset:2px}
+.product button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+
+/* ---------- Header: glass bar, search in the middle, quiet actions ---------- */
+.product .institutional-header{
+  height:var(--header-h);grid-template-columns:var(--sidebar-w) minmax(0,1fr) auto;gap:16px;padding:0 20px 0 18px;
+  background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--glass-line);color:var(--text)
+}
+.product .institutional-header .logo>span{width:32px;height:32px;border-radius:10px;background:#0b1220;color:#fff;font-size:12px;box-shadow:none}
+.product.dark .institutional-header .logo>span{background:#f1f5f9;color:#0b1220}
+.product .institutional-header .logo>strong{color:var(--text);font-size:16px;font-weight:700;letter-spacing:-.02em}
+.command-trigger{justify-self:center;width:min(520px,100%);height:38px;display:flex;align-items:center;gap:10px;padding:0 10px 0 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);color:var(--muted);font-size:14px;cursor:pointer;transition:border-color .2s var(--ease),background-color .2s var(--ease)}
+.command-trigger:hover{border-color:var(--line-strong);background:var(--surface)}
+.command-trigger span{flex:1;text-align:left}
+.product kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;background:var(--surface);color:var(--muted);font:600 11px/1 var(--font-ui)}
+.product .institutional-header .header-actions{display:flex;align-items:center;gap:6px}
+.product .institutional-header .mode-chip{height:28px;display:inline-flex;align-items:center;padding:0 12px;border:0;border-radius:var(--r-pill);background:var(--amber-soft);color:var(--amber);font-size:12px;font-weight:700;letter-spacing:0}
+.product .institutional-header .header-actions>button{height:36px;min-width:36px;display:inline-grid;place-items:center;padding:0;border:0;border-radius:var(--r-sm);background:transparent;color:var(--text-2);font-size:13px}
+.product .institutional-header .header-actions>button:hover{background:var(--surface-3)}
+.product .institutional-header .header-actions>button.active{background:var(--cobalt-soft);color:var(--cobalt-ink)}
+.product .institutional-header .header-actions>.user-chip{width:34px;min-width:34px;height:34px;margin-left:4px;border-radius:50%;background:linear-gradient(140deg,#1e3a8a,#2563eb);color:#fff;font-size:12px;font-weight:700}
+
+/* ---------- Sidebar: grouped, icon + label, tinted active pill ---------- */
+.product .institutional-sidebar{
+  top:var(--header-h);width:var(--sidebar-w);padding:16px 12px 24px;overflow-y:auto;
+  background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-right:1px solid var(--glass-line)
+}
+.product .institutional-sidebar .sidebar-group+.sidebar-group{margin-top:18px}
+.product .institutional-sidebar label{display:block;margin:0 12px 6px;color:var(--faint);font-size:12px;font-weight:600;letter-spacing:.02em}
+.product .institutional-sidebar button{position:relative;width:100%;height:40px;min-height:40px;display:flex;align-items:center;gap:12px;padding:0 12px;border:0;border-radius:var(--r-sm);background:transparent;color:var(--text-2);font-size:14px;font-weight:500;line-height:1.2;box-shadow:none;transition:background-color .18s var(--ease),color .18s var(--ease)}
+.product .institutional-sidebar button i{width:20px;flex:0 0 20px;color:var(--muted)}
+.product .institutional-sidebar button:hover:not(.active){background:var(--surface-3);color:var(--text)}
+.product .institutional-sidebar button.active{background:var(--cobalt-soft);color:var(--cobalt-ink);font-weight:650;box-shadow:none}
+.product .institutional-sidebar button.active i{color:var(--cobalt)}
+.product .institutional-sidebar button em{margin-left:auto;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px;border-radius:var(--r-pill);background:var(--red);color:#fff;font-size:11px;font-style:normal;font-weight:700}
+
+/* ---------- Page frame ---------- */
+.product .product-main{margin-left:var(--sidebar-w);padding-top:var(--header-h)}
+.product .product-page{max-width:1440px;margin:0 auto;padding:32px 40px 72px}
+.product .page-title{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
+.product .page-title h1{margin:0 0 6px;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.2;color:var(--text)}
+.product .product-page .page-title p{margin:0;color:var(--muted);font-size:15px!important;line-height:1.5}
+.product .page-title h1 small{margin-left:8px;color:var(--faint);font-size:14px;font-weight:500}
+
+/* ---------- Surfaces ---------- */
+.product .product-page .panel,.product .product-page .summary-card,.product .institutional-kpis article,.product .product-page .market-card{
+  border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-sm)
+}
+.product .product-page .panel{padding:22px 24px}
+.product .product-page .panel-header{gap:16px;margin-bottom:16px}
+.product .product-page .panel-header h2,.product .product-page .panel>h2{margin:0 0 4px;font-size:17px;font-weight:650;letter-spacing:-.02em;color:var(--text)}
+.product .product-page .panel-header p{color:var(--muted)}
+.product .institutional-status-strip,.product .data-provenance-strip,.product .control-data-status,.product .control-readiness,.product .operations-health,.product .copilot-safety-strip,.product .builder-help-strip,.product .market-access-strip{border-radius:var(--r-md)}
+.product .data-provenance-strip{border:1px solid var(--line);border-left:4px solid var(--amber);background:var(--surface);box-shadow:none}
+.product .institutional-status-strip{border:1px solid var(--line);background:var(--surface);box-shadow:none}
+
+/* KPI tiles: big tabular figures, small quiet labels */
+.product .institutional-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}
+@media (min-width:1680px){.product .institutional-kpis{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.product .institutional-kpis label{display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap}
+.product .institutional-kpis article{padding:18px 20px}
+.product .institutional-kpis label{color:var(--muted);font-weight:500;letter-spacing:0}
+.product .institutional-kpis strong{margin:10px 0 6px;font-size:28px;font-weight:700;letter-spacing:-.03em;color:var(--text)}
+.product .institutional-kpis strong.positive,.product .institutional-kpis .positive{color:var(--emerald)}
+.product .institutional-kpis article.attention{border-color:color-mix(in srgb,var(--amber) 35%,var(--line));background:linear-gradient(180deg,var(--amber-soft),var(--surface) 70%)}
+
+/* Tables: airy rows, quiet header, hover */
+.product .product-page table{border-collapse:separate;border-spacing:0}
+.product .product-page th{height:40px;padding:0 14px;border-bottom:1px solid var(--line);background:transparent;color:var(--muted);font-weight:600;letter-spacing:0;text-align:left}
+.product .product-page td{height:52px;padding:0 14px;border-bottom:1px solid var(--line);color:var(--text)}
+.product .product-page tbody tr{transition:background-color .15s var(--ease)}
+.product .product-page tbody tr:hover{background:var(--surface-2)}
+.product .product-page tbody tr:last-child td{border-bottom:0}
+
+/* ---------- Controls ---------- */
+.product .product-page .btn,.product .modal-backdrop .btn{min-height:40px;padding:0 18px;border-radius:var(--r-pill);font-size:14px;font-weight:600;letter-spacing:-.01em;transition:background-color .18s var(--ease),border-color .18s var(--ease),color .18s var(--ease),transform .12s var(--ease),box-shadow .18s var(--ease)}
+.product .product-page .btn:active:not(:disabled),.product .modal-backdrop .btn:active:not(:disabled){transform:scale(.98)}
+.product .btn.primary{border-color:var(--cobalt);background:var(--cobalt);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.22)}
+.product .btn.primary:hover:not(:disabled){border-color:var(--cobalt-hover);background:var(--cobalt-hover)}
+.product .btn.secondary{border:1px solid var(--line-strong);background:var(--surface);color:var(--text)}
+.product .btn.secondary:hover:not(:disabled){background:var(--surface-2);border-color:var(--faint)}
+.product .btn.danger{border:1px solid color-mix(in srgb,var(--red) 30%,transparent);background:var(--red-soft);color:var(--red)}
+.product .btn.danger.solid,.product .btn.danger.wide{border-color:var(--red);background:var(--red);color:#fff;box-shadow:0 6px 16px rgba(200,30,30,.2)}
+.product .btn:disabled{opacity:.45;box-shadow:none;cursor:not-allowed}
+.product .btn.validation-locked{background:var(--surface-3);border-color:var(--line);color:var(--muted);box-shadow:none;opacity:1}
+.product .product-page input:not([type=checkbox]):not([type=radio]):not([type=range]),.product .product-page select,.product .product-page textarea,.product .modal-backdrop input{
+  min-height:42px;border:1px solid var(--line-strong);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-size:14px;transition:border-color .18s var(--ease),box-shadow .18s var(--ease)
+}
+.product .product-page textarea{padding:12px 14px;line-height:1.6}
+.product .product-page input:focus,.product .product-page select:focus,.product .product-page textarea:focus,.product .modal-backdrop input:focus{outline:0;border-color:var(--cobalt);box-shadow:0 0 0 4px color-mix(in srgb,var(--cobalt) 15%,transparent)}
+
+/* Status chips are pills with soft semantic fills */
+.product :is(.asof-chip,.control-policy-chip,.institutional-state,.order-status,.verification,.market-risk,.paper-object-badge,.status-badge,.shadow-mode-chip,.panel-header>span,.institutional-kpis label em){
+  border-radius:var(--r-pill);letter-spacing:0
+}
+.product :is(.asof-chip,.control-policy-chip){height:32px;padding:0 14px;border-color:var(--line);background:var(--surface);color:var(--muted);font-size:12px;font-weight:600}
+.product .institutional-kpis label em,.product .paper-object-badge{padding:2px 8px;background:var(--cobalt-soft);color:var(--cobalt-ink);font-size:11px;font-weight:700}
+
+/* Notifications: category icons in soft tiles */
+.product .notification-list>button>i,.product .notification-detail-card header>i{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:12px;background:var(--surface-3);color:var(--text-2)}
+.product .notification-list>button.unread>i{background:var(--cobalt-soft);color:var(--cobalt)}
+.product .notification-list>button{border-radius:var(--r-md);transition:background-color .15s var(--ease)}
+
+/* ---------- Dialogs, toast, command palette ---------- */
+.product .modal-backdrop{background:rgba(15,23,42,.32);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fadeIn .2s var(--ease) backwards}
+.product .emergency-modal{width:min(500px,100%);padding:28px;border:1px solid var(--line);border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--shadow-lg);animation:dialogIn .26s var(--ease) backwards}
+.product .emergency-modal h2{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.product .emergency-modal>p{color:var(--text-2);font-size:14px;line-height:1.65}
+.product .emergency-modal .emergency-option{border-radius:var(--r-md);background:var(--surface-2);border-color:var(--line)}
+.product .toast{display:flex;align-items:center;gap:10px;padding:12px 18px 12px 12px;border-radius:14px;background:#0f172a;color:#fff;font-size:14px;font-weight:500;box-shadow:0 18px 40px rgba(15,23,42,.28);animation:toastUp .28s var(--ease) backwards}
+.product .toast>i{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#10b981;color:#fff}
+.command-backdrop{position:fixed;inset:0;z-index:200;display:flex;justify-content:center;align-items:flex-start;padding:12vh 20px 20px;background:rgba(15,23,42,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .16s var(--ease) backwards}
+.command-palette{width:min(640px,100%);overflow:hidden;border:1px solid var(--line);border-radius:var(--r-xl);background:var(--surface);color:var(--text);box-shadow:var(--shadow-lg);animation:dialogIn .22s var(--ease) backwards}
+.command-input{display:flex;align-items:center;gap:12px;height:60px;padding:0 18px;border-bottom:1px solid var(--line);color:var(--muted)}
+.command-input input{flex:1;height:100%;border:0;outline:0;background:transparent;color:var(--text);font:500 17px var(--font-ui)}
+.command-input input:focus-visible{outline:0}
+.command-palette ul{max-height:min(420px,52vh);overflow-y:auto;margin:0;padding:8px;list-style:none}
+.command-palette li{display:flex;align-items:center;gap:12px;height:46px;padding:0 12px;border-radius:var(--r-sm);color:var(--text);font-size:15px;cursor:pointer}
+.command-palette li i{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:var(--surface-3);color:var(--text-2)}
+.command-palette li span{flex:1}
+.command-palette li small{color:var(--faint);font-size:12px}
+.command-palette li.active{background:var(--cobalt-soft)}
+.command-palette li.active i{background:var(--cobalt);color:#fff}
+.command-palette li.command-empty{justify-content:center;color:var(--muted);cursor:default}
+.command-palette footer{display:flex;gap:18px;padding:10px 18px;border-top:1px solid var(--line);background:var(--surface-2);color:var(--muted);font-size:12px}
+.command-palette footer kbd{margin-right:4px}
+
+/* ---------- Motion ---------- */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes dialogIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes toastUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.product .product-page .market-card,.product .product-page .summary-card{transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.product .product-page .market-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+@media (prefers-reduced-motion:reduce){
+  .product .modal-backdrop,.product .emergency-modal,.product .toast,.command-backdrop,.command-palette{animation:none}
+  .product .product-page .market-card:hover{transform:none}
+}
+@media (prefers-reduced-transparency:reduce){
+  .product .institutional-header,.product .institutional-sidebar{background:var(--surface);backdrop-filter:none;-webkit-backdrop-filter:none}
+}
+
+/* ---------- Tablet and phone ---------- */
+@media (max-width:720px){.product .institutional-kpis{grid-template-columns:1fr 1fr}}
+@media (max-width:900px){
+  .product .institutional-header{grid-template-columns:auto 1fr auto;padding:0 14px}
+  .command-trigger{width:auto;justify-self:end}
+  .command-trigger span,.command-trigger kbd{display:none}
+  .product .product-main{margin-left:0}
+  .product .product-page{padding:20px 16px 96px}
+  .product .page-title{flex-direction:column;align-items:flex-start}
+  .product .page-title h1{font-size:24px}
+}
+
+/* Sign-in and sign-up share the app's call-to-action: cobalt pill. */
+.auth-split .btn{border-radius:999px}
+.auth-split .btn.primary{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.25)}
+.auth-split .btn.primary:hover:not(:disabled){border-color:#1d4ed8;background:#1d4ed8}
+.auth-split .btn.primary:disabled{box-shadow:none}
+
+/* Public landing: pill calls to action and confident headlines. */
+.bt-primary-action,.bt-secondary-action,.bt-public-login,.bt-product-close{border-radius:999px!important;transition:transform .15s cubic-bezier(.2,0,0,1),background-color .2s cubic-bezier(.2,0,0,1),border-color .2s cubic-bezier(.2,0,0,1)}
+.bt-primary-action,.bt-secondary-action{min-height:48px;padding:0 24px!important;font-size:15px!important}
+.bt-primary-action{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important}
+.bt-primary-action:hover{background:#1d4ed8!important}
+.bt-secondary-action{background:rgba(255,255,255,.06)!important;border-color:rgba(255,255,255,.18)!important;color:#fff!important}
+.bt-secondary-action:hover{background:rgba(255,255,255,.12)!important}
+.bt-primary-action:active,.bt-secondary-action:active,.bt-public-login:active{transform:scale(.98)}
+.bt-public-header{backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+.bt-hero-copy h1{font-weight:750;letter-spacing:-.045em}
+.bt-control-principle h2{font-weight:700}
+@media (prefers-reduced-motion:reduce){.bt-primary-action,.bt-secondary-action,.bt-public-login{transition:none}}

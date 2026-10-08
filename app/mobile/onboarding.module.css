@@ -28,7 +28,7 @@
 .progress span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .progress .done i{background:#93b4f5}
 .progress .current i{background:var(--cobalt)}
-.authBody{flex:1;padding:14px 20px 24px;animation:stepIn .32s var(--ease) both}
+.authBody{flex:1;padding:14px 20px 24px;animation:stepIn .32s var(--ease) backwards}
 @keyframes stepIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
 .stepLabel{display:inline-flex;align-items:center;height:26px;margin:0 0 12px;padding:0 11px;border-radius:999px;background:#eaf1ff;color:#1d4ed8;font-size:12px;font-weight:700}
 .authBody h1{margin:0 0 8px;font-size:26px;font-weight:800;letter-spacing:-.03em;word-break:keep-all}
@@ -40,7 +40,7 @@
 .field input:focus{outline:0;border-color:var(--cobalt);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
 .hint{display:flex;align-items:center;gap:4px;margin:8px 4px 0;color:#94a3b8;font-size:12px;font-weight:500}
 .hintOk{color:#047857}
-.reveal{animation:stepIn .3s var(--ease) both}
+.reveal{animation:stepIn .3s var(--ease) backwards}
 .textAction{min-height:40px;border:0;background:transparent;color:#475569;font-size:13px;font-weight:600;padding:4px 4px}
 .ctaBar{position:sticky;bottom:0;display:grid;gap:10px;padding:14px 20px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(rgba(242,244,247,0),#f2f4f7 26%)}
 .primary{height:56px;border:0;border-radius:999px;background:var(--cobalt);color:#fff;font-size:16px;font-weight:800;box-shadow:0 10px 24px rgba(37,99,235,.28)}

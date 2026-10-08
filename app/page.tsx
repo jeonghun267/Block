@@ -148,6 +148,7 @@ type NotificationItem = { id: string; category: string; title: string; body: str
 type ExchangeReadiness = { mode: "demo" | "live"; ready: boolean; liveReady: boolean; liveBlockers: string[]; missing: string[]; withdrawalsAllowed: false };
 type CommerceReadiness = { demoReady: boolean; liveReady: boolean; payment: { mode: "demo" | "live"; provider: string; ready: boolean; missingEnvironmentKeys: string[] }; blockers: { code: string; satisfied: boolean; note: string }[] };
 
+const NOTIFICATION_ICON: Record<string, IconName> = { 체결:"receipt", 오류:"circleX", 가격:"trendingUp", 위험:"alert", 검증:"flask", 연동:"plug" };
 const NOTIFICATIONS: NotificationItem[] = [
   { id:"trade-buy", category:"체결", title:"DCA 비트코인 적립 — 매수 체결", body:"BTC 0.001개 · ₩42,300 매수 완료", time:"방금 전", icon:"체결", detail:"업비트에서 BTC 0.001개가 시장가로 체결되었습니다. 예상 슬리피지는 0.08%였고 실제 슬리피지는 0.04%입니다." },
   { id:"strategy-error", category:"전략 오류", title:"RSI 역추세 스윙 — API 응답 실패", body:"업비트 서버 일시 오류 · 1분 후 재시도", time:"5분 전", icon:"오류", detail:"거래소 API가 제한 시간 안에 응답하지 않아 주문을 만들지 않았습니다. 중복 주문 방지를 위해 재시도 전 상태를 다시 확인합니다." },
@@ -166,28 +167,20 @@ const TRANSACTIONS = [
   { id:"T-250309-01", date:"2025.03.09 10:20", side:"매수", asset:"ETH", strategy:"리밸런싱", amount:"0.22 ETH", price:"₩744,200", pnl:"—", status:"체결" },
 ];
 
-const PRIMARY_NAV: { id: Screen; label: string }[] = [
-  { id: "dashboard", label: "펀드 운용" },
-  { id: "control", label: "리스크·통제" },
-  { id: "shadow", label: "섀도 운용" },
-  { id: "operations", label: "주문관리" },
-  { id: "builder", label: "전략" },
-  { id: "market", label: "전략 마켓" },
-  { id: "backtest", label: "리서치" },
+const SIDEBAR_NAV: { id: Screen; icon: IconName; label: string; group: string }[] = [
+  { id: "dashboard", icon: "layout", label: "펀드 현황", group: "운용" },
+  { id: "control", icon: "shield", label: "리스크·통제", group: "운용" },
+  { id: "operations", icon: "receipt", label: "운영센터", group: "운용" },
+  { id: "shadow", icon: "eye", label: "섀도 운용", group: "운용" },
+  { id: "copilot", icon: "sparkles", label: "AI 전략 코파일럿", group: "전략" },
+  { id: "builder", icon: "blocks", label: "전략 빌더", group: "전략" },
+  { id: "backtest", icon: "flask", label: "리서치 랩", group: "전략" },
+  { id: "market", icon: "store", label: "전략 마켓", group: "전략" },
+  { id: "notifications", icon: "bell", label: "알림", group: "관리" },
+  { id: "settings", icon: "settings", label: "설정", group: "관리" },
+  { id: "api", icon: "plug", label: "외부 연동", group: "관리" },
 ];
-
-const SIDEBAR_NAV: { id: Screen; icon: IconName; label: string }[] = [
-  { id: "dashboard", icon: "layout", label: "펀드 현황" },
-  { id: "control", icon: "shield", label: "리스크·통제" },
-  { id: "shadow", icon: "eye", label: "섀도 운용" },
-  { id: "operations", icon: "receipt", label: "주문·체결" },
-  { id: "builder", icon: "blocks", label: "전략 등록부" },
-  { id: "copilot", icon: "sparkles", label: "AI 전략 코파일럿" },
-  { id: "backtest", icon: "flask", label: "리서치 랩" },
-  { id: "notifications", icon: "bell", label: "알림" },
-  { id: "settings", icon: "settings", label: "관리" },
-  { id: "api", icon: "plug", label: "외부 연동" },
-];
+const SIDEBAR_GROUPS = ["운용", "전략", "관리"] as const;
 
 const DEFAULT_PRICE_CONFIG: PriceConditionConfig = { type:"price_change", metric:"return", asset:"ETH", direction:"up", threshold:2.5, window:"4h", reference:"window_open", priceSource:"last_trade", trigger:"cross", confirmation:"candle_close", missingData:"skip", repeat:"once_per_candle" };
 const DEFAULT_RATIO_CONFIG: RatioActionConfig = { type:"ratio_trade", side:"sell", ratio:30, basis:"holding_asset" };
@@ -383,6 +376,7 @@ function safeLoadBlocks(): StrategyBlock[] {
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [dark, setDark] = useState(false);
+  const [palette, setPalette] = useState(false);
   const [toast, setToast] = useState("");
   const [blocks, setBlocks] = useState<StrategyBlock[]>(safeLoadBlocks);
   const [connected, setConnected] = useState(false);
@@ -395,6 +389,14 @@ export default function Home() {
   const [marketplace, setMarketplace] = useState<MarketplaceSnapshot>(DEFAULT_MARKETPLACE_SNAPSHOT);
   const [selectedMarketId, setSelectedMarketId] = useState(DEFAULT_MARKETPLACE_SNAPSHOT.strategies[0].id);
   const [marketBusy, setMarketBusy] = useState("");
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setPalette((open) => !open); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem("bt-blocks-v2", JSON.stringify(blocks)); } catch { /* storage can be unavailable */ }
@@ -497,7 +499,7 @@ export default function Home() {
   if (screen === "api") return <><ApiSetup go={go} notify={notify} backTo={apiReturn} />{toast && <Toast message={toast} />}</>;
 
   return <div className={dark ? "product dark" : "product"}>
-    <AppHeader screen={screen} go={go} dark={dark} setDark={setDark} profile={profile} />
+    <AppHeader screen={screen} go={go} dark={dark} setDark={setDark} profile={profile} openPalette={() => setPalette(true)} />
     <AppSidebar screen={screen} go={go} openApi={openApi} unreadCount={NOTIFICATIONS.slice(0, 2).filter((item) => !readNotifications.has(item.id)).length} />
     <main className="product-main">
       {screen === "dashboard" && <Dashboard go={go} connected={connected} demoMode={demoMode} enterDemo={enterDemo} openApi={openApi} />}
@@ -522,6 +524,15 @@ export default function Home() {
       {screen === "settings" && <Settings dark={dark} setDark={setDark} notify={notify} connected={connected} openApi={openApi} profile={profile} plan={plan} go={go} />}
     </main>
     <BottomNav screen={screen} go={go} />
+    {palette && <CommandPalette onClose={() => setPalette(false)} commands={[
+      ...SIDEBAR_NAV.map((item) => ({ id: item.id, label: item.label, hint: `${item.group} · 화면 이동`, icon: item.icon, run: () => item.id === "api" ? openApi(screen) : go(item.id) })),
+      { id: "transactions", label: "체결 내역", hint: "운용 · 화면 이동", icon: "list" as IconName, run: () => go("transactions") },
+      { id: "library", label: "전략 보관함", hint: "전략 · 화면 이동", icon: "clipboard" as IconName, run: () => go("library") },
+      { id: "profile", label: "프로필 편집", hint: "계정", icon: "user" as IconName, run: () => go("profile") },
+      { id: "billing", label: "플랜 · 성과보수", hint: "계정", icon: "receipt" as IconName, run: () => go("billing") },
+      { id: "support", label: "고객지원", hint: "계정", icon: "mail" as IconName, run: () => go("support") },
+      { id: "theme", label: dark ? "라이트 모드로 전환" : "다크 모드로 전환", hint: "보기", icon: (dark ? "sun" : "moon") as IconName, run: () => setDark(!dark) },
+    ]} />}
     {toast && <Toast message={toast} />}
   </div>;
 }
@@ -781,13 +792,37 @@ function ApiSetup({ go, notify, backTo }: { go: (screen: Screen) => void; notify
   </main>;
 }
 
-function AppHeader({ screen, go, dark, setDark, profile }: { screen: Screen; go: (screen: Screen) => void; dark: boolean; setDark: (value: boolean) => void; profile: Profile }) {
-  return <header className="app-header institutional-header"><button type="button" className="header-logo" onClick={() => go("dashboard")} aria-label="대시보드로 이동"><Logo /></button><nav aria-label="웹 주요 메뉴">{PRIMARY_NAV.map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "operations" ? "운영센터" : item.id === "builder" ? "전략 빌더" : item.id === "market" ? "전략 마켓" : undefined} aria-current={screen === item.id ? "page" : undefined} key={item.id} onClick={() => go(item.id)}>{item.label}</button>)}</nav><div className="header-actions"><span className="mode-chip">모의</span><button type="button" onClick={() => setDark(!dark)}>{dark ? "라이트" : "다크"}</button><button type="button" className={screen === "settings" ? "active" : ""} aria-label="설정" onClick={() => go("settings")}>관리</button><button type="button" className="user-chip" onClick={() => go("profile")} aria-label="프로필 편집">{profile.nickname.slice(0, 2)}</button></div></header>;
+function AppHeader({ screen, go, dark, setDark, profile, openPalette }: { screen: Screen; go: (screen: Screen) => void; dark: boolean; setDark: (value: boolean) => void; profile: Profile; openPalette: () => void }) {
+  return <header className="app-header institutional-header"><button type="button" className="header-logo" onClick={() => go("dashboard")} aria-label="대시보드로 이동"><Logo /></button><button type="button" className="command-trigger" onClick={openPalette} aria-label="검색 또는 화면 이동"><Icon name="search" size={16} /><span>검색 또는 화면 이동</span><kbd>⌘K</kbd></button><div className="header-actions"><span className="mode-chip">모의</span><button type="button" className="icon-button" onClick={() => setDark(!dark)} aria-label={dark ? "라이트 모드로 전환" : "다크 모드로 전환"}><Icon name={dark ? "sun" : "moon"} size={18} /></button><button type="button" className={screen === "settings" ? "icon-button active" : "icon-button"} aria-label="설정" onClick={() => go("settings")}><Icon name="settings" size={18} /></button><button type="button" className="user-chip" onClick={() => go("profile")} aria-label="프로필 편집">{profile.nickname.slice(0, 2)}</button></div></header>;
+}
+
+type Command = { id: string; label: string; hint: string; icon: IconName; run: () => void };
+
+function CommandPalette({ commands, onClose }: { commands: Command[]; onClose: () => void }) {
+  const [query, setQuery] = useState("");
+  const [index, setIndex] = useState(0);
+  const needle = query.trim().toLowerCase();
+  const items = needle ? commands.filter((item) => `${item.label} ${item.hint}`.toLowerCase().includes(needle)) : commands;
+  const active = Math.min(index, Math.max(items.length - 1, 0));
+  const pick = (item: Command | undefined) => { if (!item) return; onClose(); item.run(); };
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown") { event.preventDefault(); setIndex((active + 1) % Math.max(items.length, 1)); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); setIndex((active - 1 + items.length) % Math.max(items.length, 1)); }
+    else if (event.key === "Enter") { event.preventDefault(); pick(items[active]); }
+    else if (event.key === "Escape") { event.preventDefault(); onClose(); }
+  };
+  return <div className="command-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="command-palette" role="dialog" aria-modal="true" aria-label="검색 또는 화면 이동">
+      <div className="command-input"><Icon name="search" size={18} /><input autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setIndex(0); }} onKeyDown={onKeyDown} placeholder="화면이나 작업을 검색하세요" aria-label="명령 검색" role="combobox" aria-expanded="true" aria-controls="command-list" aria-activedescendant={items[active] ? `command-${items[active].id}` : undefined} /><kbd>esc</kbd></div>
+      <ul id="command-list" role="listbox" aria-label="검색 결과">{items.map((item, itemIndex) => <li key={item.id} id={`command-${item.id}`} role="option" aria-selected={itemIndex === active} className={itemIndex === active ? "active" : ""} onMouseEnter={() => setIndex(itemIndex)} onClick={() => pick(item)}><i><Icon name={item.icon} size={16} /></i><span>{item.label}</span><small>{item.hint}</small></li>)}{items.length === 0 && <li className="command-empty" role="option" aria-selected="false">일치하는 화면이나 작업이 없습니다</li>}</ul>
+      <footer><span><kbd>↑</kbd><kbd>↓</kbd> 이동</span><span><kbd>↵</kbd> 열기</span><span><kbd>esc</kbd> 닫기</span></footer>
+    </section>
+  </div>;
 }
 
 function AppSidebar({ screen, go, openApi, unreadCount }: { screen: Screen; go: (screen: Screen) => void; openApi: (returnTo: Screen) => void; unreadCount: number }) {
   const navigate = (next: Screen) => next === "api" ? openApi("dashboard") : go(next);
-  return <aside className="app-sidebar institutional-sidebar"><label>투자 운용</label>{SIDEBAR_NAV.slice(0,5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "builder" ? "전략 빌더" : undefined} key={item.id} onClick={() => navigate(item.id)}><i><Icon name={item.icon} size={18} /></i>{item.label}</button>)}<label>감독·관리</label>{SIDEBAR_NAV.slice(5).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-label={item.id === "notifications" ? "알림" : item.id === "settings" ? "설정" : undefined} key={item.id} onClick={() => navigate(item.id)}><i><Icon name={item.icon} size={18} /></i>{item.label}{item.id === "notifications" && unreadCount > 0 && <em>{unreadCount}</em>}</button>)}</aside>;
+  return <aside className="app-sidebar institutional-sidebar">{SIDEBAR_GROUPS.map((group) => <div className="sidebar-group" key={group}><label>{group}</label>{SIDEBAR_NAV.filter((item) => item.group === group).map((item) => <button type="button" className={screen === item.id ? "active" : ""} aria-current={screen === item.id ? "page" : undefined} aria-label={item.id === "notifications" ? "알림" : undefined} key={item.id} onClick={() => navigate(item.id)}><i><Icon name={item.icon} size={18} /></i>{item.label}{item.id === "notifications" && unreadCount > 0 && <em>{unreadCount}</em>}</button>)}</div>)}</aside>;
 }
 
 function BottomNav({ screen, go }: { screen: Screen; go: (screen: Screen) => void }) {
@@ -1700,7 +1735,7 @@ function Notifications({ notify, read, setRead, openDetail }: { notify: (message
   const unread = [...initiallyUnread].filter((id) => !read.has(id)).length;
   const visible = filter === "전체 6" ? NOTIFICATIONS : NOTIFICATIONS.filter((item) => item.category === filter.split(" ")[0]);
   const markAllRead = () => { setRead(new Set(NOTIFICATIONS.map((item) => item.id))); notify("모든 알림을 읽음 처리했습니다"); };
-  return <div className="product-page notifications-page"><PageTitle title="알림" subtitle={`최근 30일 활동 · 미확인 ${unread}건`} /><div className="notification-tabs"><div>{["전체 6","체결 2","가격 1","전략 오류 1"].map((item) => <button type="button" className={filter === item ? "active" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>)}</div><button type="button" onClick={markAllRead}>모두 읽음</button></div><section className="notification-list"><header><strong>{filter === "전체 6" ? "최근 알림 · 6건" : filter}</strong><span>미확인 {unread}</span></header>{visible.map((item) => <button type="button" className={initiallyUnread.has(item.id) && !read.has(item.id) ? "unread" : ""} key={item.id} onClick={() => openDetail(item.id)}><i>{item.icon}</i><em>{item.category}</em><div><strong>{item.title}</strong><p>{item.body}</p></div><time>{item.time}</time></button>)}</section></div>;
+  return <div className="product-page notifications-page"><PageTitle title="알림" subtitle={`최근 30일 활동 · 미확인 ${unread}건`} /><div className="notification-tabs"><div>{["전체 6","체결 2","가격 1","전략 오류 1"].map((item) => <button type="button" className={filter === item ? "active" : ""} key={item} onClick={() => setFilter(item)}>{item}</button>)}</div><button type="button" onClick={markAllRead}>모두 읽음</button></div><section className="notification-list"><header><strong>{filter === "전체 6" ? "최근 알림 · 6건" : filter}</strong><span>미확인 {unread}</span></header>{visible.map((item) => <button type="button" className={initiallyUnread.has(item.id) && !read.has(item.id) ? "unread" : ""} key={item.id} onClick={() => openDetail(item.id)}><i aria-hidden="true"><Icon name={NOTIFICATION_ICON[item.icon] || "bell"} size={18} /></i><em>{item.category}</em><div><strong>{item.title}</strong><p>{item.body}</p></div><time>{item.time}</time></button>)}</section></div>;
 }
 
 function NotificationDetail({ itemId, go, openApi }: { itemId: string; go: (screen: Screen) => void; openApi: (returnTo: Screen) => void }) {
@@ -1713,7 +1748,7 @@ function NotificationDetail({ itemId, go, openApi }: { itemId: string; go: (scre
     return go("dashboard");
   };
   const actionLabel = item.id === "api-expiry" ? "API 키 갱신하기" : item.category === "체결" ? "체결 내역 보기" : item.category === "백테스팅" ? "백테스트 결과 보기" : item.category === "전략 오류" ? "연동 상태 확인" : "대시보드로 이동";
-  return <div className="product-page detail-page"><PageTitle title="알림 상세" subtitle="발생 원인과 다음 조치를 확인하세요" action={<button type="button" className="btn secondary" onClick={() => go("notifications")}>← 알림 목록</button>} /><article className="panel notification-detail-card"><header><i>{item.icon}</i><div><span>{item.category} · {item.time}</span><h2>{item.title}</h2><p>{item.body}</p></div></header><section><h3>상세 내용</h3><p>{item.detail}</p></section><section className="notification-safety"><strong>자동 보호 상태</strong><p>{item.category === "전략 오류" ? "응답이 확인되지 않아 주문은 생성되지 않았습니다. 중복 체결 방지 보호가 활성화되어 있습니다." : "이 알림을 확인하는 동안 별도의 주문이나 설정 변경은 발생하지 않습니다."}</p></section><footer><button type="button" className="btn primary" onClick={action}>{actionLabel}</button><button type="button" className="btn secondary" onClick={() => go("notifications")}>확인 완료</button></footer></article></div>;
+  return <div className="product-page detail-page"><PageTitle title="알림 상세" subtitle="발생 원인과 다음 조치를 확인하세요" action={<button type="button" className="btn secondary" onClick={() => go("notifications")}>← 알림 목록</button>} /><article className="panel notification-detail-card"><header><i aria-hidden="true"><Icon name={NOTIFICATION_ICON[item.icon] || "bell"} size={18} /></i><div><span>{item.category} · {item.time}</span><h2>{item.title}</h2><p>{item.body}</p></div></header><section><h3>상세 내용</h3><p>{item.detail}</p></section><section className="notification-safety"><strong>자동 보호 상태</strong><p>{item.category === "전략 오류" ? "응답이 확인되지 않아 주문은 생성되지 않았습니다. 중복 체결 방지 보호가 활성화되어 있습니다." : "이 알림을 확인하는 동안 별도의 주문이나 설정 변경은 발생하지 않습니다."}</p></section><footer><button type="button" className="btn primary" onClick={action}>{actionLabel}</button><button type="button" className="btn secondary" onClick={() => go("notifications")}>확인 완료</button></footer></article></div>;
 }
 
 function TransactionHistory({ go, notify }: { go: (screen: Screen) => void; notify: (message: string) => void }) {
@@ -1870,4 +1905,4 @@ function Settings({ dark, setDark, notify, connected, openApi, profile, plan, go
   </div>;
 }
 
-function Toast({ message }: { message: string }) { return <div className="toast" role="status"><span>완료</span>{message}</div>; }
+function Toast({ message }: { message: string }) { return <div className="toast" role="status"><i aria-hidden="true"><Icon name="check" size={14} /></i>{message}</div>; }
