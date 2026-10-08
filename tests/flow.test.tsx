@@ -177,7 +177,7 @@ describe("BlockTrade 핵심 사용자 흐름", () => {
 
     await user.click(ui.getByRole("button", { name: "기관 전용 접속" }));
     await user.click(ui.getByRole("button", { name: /카카오로 로그인/ }));
-    await user.click(ui.getByRole("button", { name: "운영센터" }));
+    await user.click(ui.getAllByRole("button", { name: "운영센터" })[0]);
     expect(ui.getByRole("heading", { name: "모의 운영센터" })).toBeTruthy();
     await ui.findByText("서버 저장됨");
 
@@ -305,5 +305,24 @@ describe("BlockTrade 핵심 사용자 흐름", () => {
     expect(await ui.findByRole("heading", { name: "ETH 기준가 변동 전략" })).toBeTruthy();
     expect(fetchMock.mock.calls.some((call) => String(call[1]?.body || "").includes('"action":"subscribe"'))).toBe(true);
     expect(fetchMock.mock.calls.some((call) => String(call[1]?.body || "").includes('"action":"publish"'))).toBe(true);
+  });
+
+  it("⌘K 명령 팔레트로 화면을 검색해 키보드만으로 이동한다", async () => {
+    const user = userEvent.setup();
+    render(<Home />);
+    await user.click(ui.getByRole("button", { name: "기관 전용 접속" }));
+    await user.click(ui.getByRole("button", { name: /카카오로 로그인/ }));
+
+    await user.keyboard("{Control>}k{/Control}");
+    const search = ui.getByRole("combobox", { name: "명령 검색" });
+    await user.type(search, "마켓");
+    expect(ui.getAllByRole("option")).toHaveLength(1);
+    await user.keyboard("{Enter}");
+    expect(ui.queryByRole("dialog", { name: "검색 또는 화면 이동" })).toBeNull();
+    expect(await ui.findByRole("heading", { name: "전략 사용권 마켓" })).toBeTruthy();
+
+    await user.click(ui.getByRole("button", { name: "검색 또는 화면 이동" }));
+    await user.keyboard("{Escape}");
+    expect(ui.queryByRole("dialog", { name: "검색 또는 화면 이동" })).toBeNull();
   });
 });
